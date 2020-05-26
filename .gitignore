@@ -23,6 +23,9 @@
 /vendor/
 /Godeps/
 
+### IntelliJ IDEA ###
+*.idea/
+
 ### macOS ###
 # General
 .DS_Store
