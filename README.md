@@ -1,7 +1,5 @@
 # team_5_game
 
-<<<<<<< HEAD
-testo test
 =======
 Here will be a Telegram-bot game.
 
