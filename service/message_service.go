@@ -16,6 +16,7 @@ func ProcessUpdateMessage(update *model_telegram.Update) {
 	switch update.Message.Text {
 	case "/start":
 		registerUser(update)
+		menu.enterYourChoice()
 	default:
 		log.Println("Not implemented")
 	}
