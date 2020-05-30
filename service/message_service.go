@@ -6,34 +6,35 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"team_5_game/config"
-	"team_5_game/model_telegram"
+	"os"
+	"team_5_game/model/telegram"
 )
 
-func ProcessUpdateMessage(update *model_telegram.Update) {
+func ProcessUpdateMessage(update *telegram.Update) {
 	log.Println("Processing update message:", updateMessageToString(update))
 
-	switch update.Message.Text {
-	case "/start":
-		registerUser(update)
-	default:
-		log.Println("Not implemented")
+	message := update.Message
+	if message != nil {
+		if message.Text == "/start" && containsMessageType(message.Entities, "bot_command") {
+			registerUser(message)
+			return
+		}
 	}
-
 }
 
-func updateMessageToString(update *model_telegram.Update) string {
+func updateMessageToString(update *telegram.Update) string {
 	out, err := json.Marshal(update)
 	if err != nil {
 		log.Println("Could not marshal update message", err)
-		return "[Unable to convert to string] "
+		return "[Unable to convert to string]"
 	}
 
 	return string(out)
 }
 
 func sendMessage(chatID int64, message string) error {
-	reqBody := &model_telegram.NewMessage{
+	log.Println("Sending message to the chat:", chatID, " message: ", message)
+	reqBody := &telegram.NewMessage{
 		ChatID: chatID,
 		Text:   message,
 	}
@@ -44,7 +45,7 @@ func sendMessage(chatID int64, message string) error {
 	}
 
 	res, err := http.Post(
-		"https://api.telegram.org/bot"+config.BotToken+"/sendMessage",
+		"https://api.telegram.org/bot"+os.Getenv("BOT_TOKEN")+"/sendMessage",
 		"application/json",
 		bytes.NewBuffer(reqBytes))
 	if err != nil {
@@ -54,13 +55,15 @@ func sendMessage(chatID int64, message string) error {
 		return errors.New("unexpected status" + res.Status)
 	}
 
+	log.Println("Message sent successfully")
 	return nil
 }
 
-func registerUser(update *model_telegram.Update) {
-	//TODO: register User
-	if err := sendMessage(update.Message.Chat.ID, "Hello new user!!!"); err != nil {
-		log.Println("Error in sending message:", err)
-		return
+func containsMessageType(messageEntities []*telegram.MessageEntity, messageType string) bool {
+	for _, messageEntity := range messageEntities {
+		if messageEntity.Type == messageType {
+			return true
+		}
 	}
+	return false
 }

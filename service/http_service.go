@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"team_5_game/config"
-	"team_5_game/model_telegram"
+	"os"
+	"strconv"
+	"team_5_game/model/telegram"
 )
 
 const updatePath = "/update"
@@ -14,9 +15,10 @@ const updatePath = "/update"
 func updateHandler(_ http.ResponseWriter, req *http.Request) {
 	log.Println("Received update message")
 
-	body := &model_telegram.Update{}
+	body := &telegram.Update{}
 
-	if err := json.NewDecoder(req.Body).Decode(body); err != nil {
+	err := json.NewDecoder(req.Body).Decode(body)
+	if err != nil {
 		log.Println("Could not decode request body", err)
 		return
 	}
@@ -30,7 +32,8 @@ func CreateHttpServer() {
 	http.HandleFunc(updatePath, updateHandler)
 
 	go func() {
-		if err := http.ListenAndServe(config.ServerPort, nil); err != nil {
+		err := http.ListenAndServe(os.Getenv("SERVER_PORT"), nil)
+		if err != nil {
 			log.Fatalln("Could not start server", err)
 		}
 	}()
@@ -39,12 +42,13 @@ func CreateHttpServer() {
 }
 
 func RegisterWebhook() {
-	if config.RegisterWebhook == true {
+	registerWebhook, _ := strconv.ParseBool(os.Getenv("REGISTER_WEBHOOK"))
+	if registerWebhook {
 		log.Println("Registering Webhook")
-		reqBytes := []byte(`{"url":"` + config.ServerUrl + updatePath + `"}`)
+		reqBytes := []byte(`{"url":"` + os.Getenv("SERVER_URL") + updatePath + `"}`)
 
 		_, err := http.Post(
-			"https://api.telegram.org/bot"+config.BotToken+"/setWebhook",
+			"https://api.telegram.org/bot"+os.Getenv("BOT_TOKEN")+"/setWebhook",
 			"application/json",
 			bytes.NewBuffer(reqBytes))
 		if err != nil {
