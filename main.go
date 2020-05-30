@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "team_5_game/service"
 
 func main() {
-	fmt.Println("Telegram bot")
+	service.StartBot()
 }
