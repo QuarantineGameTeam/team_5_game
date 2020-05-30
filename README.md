@@ -1,5 +1,4 @@
 # team_5_game
 
-
-testo test
+Here will be a Telegram-bot game.
 
