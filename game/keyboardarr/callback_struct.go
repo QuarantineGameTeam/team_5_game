@@ -1,9 +1,15 @@
-package model_telegram
+package keyboardarr
 
+//Структуры ответа в случае нажатия на кнопку
 type Update struct {
-	UpdateID     int      `json:"update_id"`
+	UpdateID      int            `json:"update_id"`
+	CallbackQuery *CallbackQuery `json:"callback_query"`
+}
+
+type CallbackQuery struct {
 	Message      *Message `json:"message"`
 	ChatInstance int      `json:"chat_instance"`
+	Data         string   `json:"data"`
 }
 
 type Message struct {

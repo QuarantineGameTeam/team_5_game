@@ -8,6 +8,7 @@ import (
 	"team_5_game/database"
 	"net/http"
 	"team_5_game/config"
+	"team_5_game/game/keyboardarr"
 	"team_5_game/model_telegram"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -18,10 +19,21 @@ func ProcessUpdateMessage(update *model_telegram.Update) {
 	switch update.Message.Text {
 	case "/start":
 		registerUser(update)
+	case "/battle": //команда для показа клавиатуры
+		newKeyboard(update)
 	default:
 		log.Println("Not implemented")
 	}
 
+}
+
+// KeyboardUpd вызывает функцию, которая меняет подпись кнопки, выводит сообщение с информацией о выбранном секторе (пока ни с чем не связана)
+func KeyboardUpd(callbackQuery *keyboardarr.Update) {
+	if callbackQuery.CallbackQuery.Data != "" {
+		keyboardarr.ChangeButton(callbackQuery.CallbackQuery.Data)
+		sendMessage(callbackQuery.CallbackQuery.Message.Chat.ID, "Выбран сектор:")
+		sendMessage(callbackQuery.CallbackQuery.Message.Chat.ID, callbackQuery.CallbackQuery.Data)
+	}
 }
 
 func updateMessageToString(update *model_telegram.Update) string {
@@ -57,6 +69,31 @@ func sendMessage(chatID int64, message string) error {
 	}
 
 	return nil
+}
+
+// добавил чтобы отправлять сообщения, по другой структуре из keyboardarr SendMessageReqBody
+func clearSend(requestBytes []byte) error {
+	res, err := http.Post(
+		"https://api.telegram.org/bot"+config.BotToken+"/sendMessage",
+		"application/json",
+		bytes.NewBuffer(requestBytes))
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusOK {
+		return errors.New("unexpected status" + res.Status)
+	}
+
+	return nil
+}
+
+//отправляет клавиатуру
+func newKeyboard(update *model_telegram.Update) {
+	chatID := update.Message.Chat.ID
+	if err := clearSend(keyboardarr.RequestBody(chatID, "Выбери сектор:")); err != nil {
+		log.Println("Error in sending message:", err)
+		return
+	}
 }
 
 func registerUser(update *model_telegram.Update) {
