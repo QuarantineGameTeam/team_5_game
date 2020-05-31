@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"team_5_game/database"
 	"net/http"
 	"team_5_game/config"
 	"team_5_game/model_telegram"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func ProcessUpdateMessage(update *model_telegram.Update) {
@@ -58,8 +60,9 @@ func sendMessage(chatID int64, message string) error {
 }
 
 func registerUser(update *model_telegram.Update) {
-	//TODO: register User
-	if err := sendMessage(update.Message.Chat.ID, "Hello new user!!!"); err != nil {
+	connection.CreateUser(update.Message)
+
+	if err := sendMessage(update.Message.Chat.ID, "Hello " + connection.CreateUserName(update.Message.From) + "!!!"); err != nil {
 		log.Println("Error in sending message:", err)
 		return
 	}

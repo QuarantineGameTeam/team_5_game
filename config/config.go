@@ -2,7 +2,7 @@ package config
 
 const (
 	ServerPort      = ":3000"
-	BotToken        = "811855052:AAHB_hmnWLCFatvxgWP8M4xGivx8x3kr1zk"
+	BotToken        = "1029941261:AAHcNgFCSfBIBHdF3vWengqLS4YthZJRtXw"
 	RegisterWebhook = true
-	ServerUrl       = "https://828011558b54.ngrok.io" //Update URL after starting ngrok
+	ServerUrl       = "https://15c990c4f7b6.ngrok.io" //Update URL after starting ngrok
 )
