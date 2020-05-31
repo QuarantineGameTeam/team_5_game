@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
 	"log"
-	"os"
 	"strconv"
+	"team_5_game/config"
 	"team_5_game/model/database"
 )
 
@@ -14,14 +14,15 @@ const userPrefix = "USER_"
 var (
 	context     = redisClient.Context()
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_ADDRESS"),
-		Password: os.Getenv("REDIS_PASSWORD"),
-		DB:       getNumberDB(),
+		Addr:     config.RedisAddress(),
+		Password: config.RedisPassword(),
+		DB:       config.RedisDB(),
 	})
 )
 
 func GetUserFromDB(id int64) (*database.User, error) {
 	log.Println("Get user from DB, user ID", id)
+
 	result, err := redisClient.Get(context, userPrefix+strconv.FormatInt(id, 10)).Result()
 	if err == redis.Nil {
 		log.Println("User not found", err)
@@ -31,11 +32,13 @@ func GetUserFromDB(id int64) (*database.User, error) {
 		return nil, err
 	} else {
 		user := &database.User{}
+
 		err := json.Unmarshal([]byte(result), user)
 		if err != nil {
 			log.Println("Could not unmarshal user", err)
 			return nil, err
 		}
+
 		log.Println("User successfully received from DB, ID", user.ID)
 		return user, nil
 	}
@@ -43,6 +46,7 @@ func GetUserFromDB(id int64) (*database.User, error) {
 
 func SaveUserToDB(user *database.User) error {
 	log.Println("Save user to the DB, ID", user.ID)
+
 	out, err := json.Marshal(user)
 	if err != nil {
 		log.Println("Could not marshal user", err)
@@ -57,9 +61,4 @@ func SaveUserToDB(user *database.User) error {
 
 	log.Println("User successfully saved to DB, ID", user.ID)
 	return nil
-}
-
-func getNumberDB() int {
-	result, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
-	return result
 }

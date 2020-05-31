@@ -1,8 +1,9 @@
 package telegram
 
 type Update struct {
-	UpdateID int64    `json:"update_id"`
-	Message  *Message `json:"message"`
+	UpdateID      int64          `json:"update_id"`
+	Message       *Message       `json:"message"`
+	CallbackQuery *CallbackQuery `json:"callback_query"`
 }
 
 type Message struct {
@@ -11,7 +12,16 @@ type Message struct {
 	Date      int              `json:"date"`
 	Chat      *Chat            `json:"chat"`
 	Text      string           `json:"text"`
-	Entities  []*MessageEntity `json:"entities"`
+	Entities  *[]MessageEntity `json:"entities"`
+}
+
+type CallbackQuery struct {
+	ID              string   `json:"id"`
+	From            *User    `json:"from"`
+	Message         *Message `json:"message"`
+	InlineMessageID string   `json:"inline_message_id"`
+	ChatInstance    string   `json:"chat_instance"`
+	Data            string   `json:"data"`
 }
 
 type User struct {
@@ -30,10 +40,52 @@ type Chat struct {
 }
 
 type MessageEntity struct {
-	Type string `json:"type"`
+	Type   string `json:"type"`
+	Offset int    `json:"offset"`
 }
 
 type NewMessage struct {
-	ChatID int64  `json:"chat_id"`
-	Text   string `json:"text"`
+	ChatID      int64                 `json:"chat_id"`
+	Text        string                `json:"text"`
+	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+type EditMessageReplyMarkup struct {
+	ChatID      int64                 `json:"chat_id"`
+	MessageID   int64                 `json:"message_id"`
+	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+}
+
+type InlineKeyboardMarkup struct {
+	InlineKeyboard [][]InlineKeyboardButton `json:"inline_keyboard"`
+}
+
+type InlineKeyboardButton struct {
+	Text         string  `json:"text"`
+	CallbackData *string `json:"callback_data,omitempty"`
+}
+
+func NewInlineKeyboardButtonData(text, data string) InlineKeyboardButton {
+	return InlineKeyboardButton{
+		Text:         text,
+		CallbackData: &data,
+	}
+}
+
+func NewInlineKeyboardRow(buttons ...InlineKeyboardButton) []InlineKeyboardButton {
+	var row []InlineKeyboardButton
+
+	row = append(row, buttons...)
+
+	return row
+}
+
+func NewInlineKeyboardMarkup(rows ...[]InlineKeyboardButton) InlineKeyboardMarkup {
+	var keyboard [][]InlineKeyboardButton
+
+	keyboard = append(keyboard, rows...)
+
+	return InlineKeyboardMarkup{
+		InlineKeyboard: keyboard,
+	}
 }

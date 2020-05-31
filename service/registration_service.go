@@ -6,15 +6,15 @@ import (
 	"team_5_game/model/telegram"
 )
 
-func registerUser(message *telegram.Message) {
+func RegisterUser(message *telegram.Message) {
 	log.Println("Start user registration")
 
 	user, _ := GetUserFromDB(message.From.ID)
 	if user != nil {
-		err := sendMessage(message.Chat.ID, "Hello "+message.From.FirstName+" you already registered!!!")
-		if err != nil {
-			log.Println("Error in sending message:", err)
-		}
+		SendMessage(
+			message.Chat.ID,
+			"Hello "+message.From.FirstName+" you already registered!!!",
+			nil)
 		log.Println("User already registered")
 	} else {
 		user := database.User{
@@ -26,16 +26,18 @@ func registerUser(message *telegram.Message) {
 		}
 		err := SaveUserToDB(&user)
 		if err == nil {
-			err := sendMessage(message.Chat.ID, "Hello "+message.From.FirstName+" thank you for registration!!!")
-			if err != nil {
-				log.Println("Error in sending message:", err)
-			}
+			SendMessage(
+				message.Chat.ID,
+				"Hello "+message.From.FirstName+" thank you for registration!!!",
+				nil)
 			log.Println("User successfully registered")
+
+			StartClanSelection(message)
 		} else {
-			err := sendMessage(message.Chat.ID, "Something went wrong please contact the administrator!!!")
-			if err != nil {
-				log.Println("Error in sending message:", err)
-			}
+			SendMessage(
+				message.Chat.ID,
+				"Something went wrong please contact the administrator!!!",
+				nil)
 			log.Println("User not registered")
 		}
 	}
