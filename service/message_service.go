@@ -19,6 +19,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 	if message != nil {
 		if message.Text == "/start" && isCommand(message) {
 			RegisterUser(message)
+			СhooseАction(message)
 			return
 		}
 	}
