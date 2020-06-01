@@ -28,6 +28,12 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			ProcessClanSelection(callbackQuery)
 		}
 	}
+
+	if callbackQuery != nil {
+		if strings.HasPrefix(callbackQuery.Data, "START_BATTLE") {
+			ProcessBattleStarting(callbackQuery)
+		}
+	}
 }
 
 func SendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) {
