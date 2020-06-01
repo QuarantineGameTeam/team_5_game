@@ -23,5 +23,5 @@ func StartBattle(message *telegram.Message) {
 
 func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
-	//TODO: Implement saving choice for the user and start battle
+	//TODO:  Implement saving choice for the user and start battle
 }
