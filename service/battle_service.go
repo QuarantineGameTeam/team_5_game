@@ -5,20 +5,16 @@ import (
 	"team_5_game/model/telegram"
 )
 
-func StartBattle(message *telegram.Message) {
-	log.Println("Send battle request for user ID", message.From.ID)
+func SendStartBattleMessage(callbackQuery *telegram.CallbackQuery) {
+	log.Println("Send battle request for user ID", callbackQuery.From.ID)
 
 	replyMarkup := telegram.NewInlineKeyboardMarkup(
 		telegram.NewInlineKeyboardRow(
 			telegram.NewInlineKeyboardButtonData("Go!", "START_BATTLE"),
 		),
-
-		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData("later", "SKIP"),
-		),
 	)
 
-	SendMessage(message.Chat.ID, "Do you want to start a battle?", &replyMarkup)
+	SendMessage(callbackQuery.Message.Chat.ID, "Do you want to start a battle?", &replyMarkup)
 }
 
 func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {

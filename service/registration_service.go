@@ -40,5 +40,6 @@ func RegisterUser(message *telegram.Message) {
 				nil)
 			log.Println("User not registered")
 		}
+
 	}
 }

@@ -19,19 +19,15 @@ func ProcessWebhookMessage(update *telegram.Update) {
 	if message != nil {
 		if message.Text == "/start" && isCommand(message) {
 			RegisterUser(message)
-			СhooseАction(message)
 			return
 		}
 	}
 
 	if callbackQuery != nil {
-		if strings.HasPrefix(callbackQuery.Data, "CLAN_SELECT") {
+		switch {
+		case strings.HasPrefix(callbackQuery.Data, "CLAN_SELECT"):
 			ProcessClanSelection(callbackQuery)
-		}
-	}
-
-	if callbackQuery != nil {
-		if strings.HasPrefix(callbackQuery.Data, "START_BATTLE") {
+		case strings.HasPrefix(callbackQuery.Data, "START_BATTLE"):
 			ProcessBattleStarting(callbackQuery)
 		}
 	}
