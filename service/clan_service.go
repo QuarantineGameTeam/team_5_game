@@ -25,5 +25,13 @@ func StartClanSelection(message *telegram.Message) {
 
 func ProcessClanSelection(callbackQuery *telegram.CallbackQuery) {
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
-	//TODO: Implement clan saving for the user
+
+	SaveUserClan(callbackQuery)
+
+	user, err := GetUserFromDB(callbackQuery.From.ID) 
+	if err != nil {
+		log.Println("Could not get user", err)
+	}
+
+	SendMessage(callbackQuery.Message.Chat.ID, "Welcome to " + user.Clan + " clan)", nil)
 }
