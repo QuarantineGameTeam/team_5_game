@@ -29,11 +29,11 @@ func SendBattlefield(callbackQuery *telegram.CallbackQuery) {
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
 	replyMarkup := telegram.NewInlineKeyboardMarkup(
 		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData("🔹", "PRESS_1"),
-			telegram.NewInlineKeyboardButtonData("⚪️", "PRESS_2"),
-			telegram.NewInlineKeyboardButtonData("🔹", "PRESS_3"),
-			telegram.NewInlineKeyboardButtonData("⚪️", "PRESS_4"),
-			telegram.NewInlineKeyboardButtonData("⚪️", "PRESS_5"),
+			telegram.NewInlineKeyboardButtonData(" 🔹 ", "PRESS_1"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_2"),
+			telegram.NewInlineKeyboardButtonData(" 🔹 ", "PRESS_3"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_4"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_5"),
 		),
 
 		telegram.NewInlineKeyboardRow(
@@ -41,11 +41,11 @@ func SendBattlefield(callbackQuery *telegram.CallbackQuery) {
 			telegram.NewInlineKeyboardButtonData(" 🔹 ", "PRESS_7"),
 			telegram.NewInlineKeyboardButtonData(" 🔹 ", "PRESS_8"),
 			telegram.NewInlineKeyboardButtonData("🔺🔸", "PRESS_9"),
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_10"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_10"),
 		),
 
 		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_11"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_11"),
 			telegram.NewInlineKeyboardButtonData(" 🔹 ", "PRESS_12"),
 			telegram.NewInlineKeyboardButtonData(" 🔺 ", "PRESS_13"),
 			telegram.NewInlineKeyboardButtonData(" 🔸 ", "PRESS_14"),
@@ -53,17 +53,17 @@ func SendBattlefield(callbackQuery *telegram.CallbackQuery) {
 		),
 
 		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_16"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_16"),
 			telegram.NewInlineKeyboardButtonData("🔵🔺", "PRESS_17"),
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_18"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_18"),
 			telegram.NewInlineKeyboardButtonData(" 🔺 ", "PRESS_19"),
 			telegram.NewInlineKeyboardButtonData(" 🔸 ", "PRESS_20"),
 		),
 
 		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_21"),
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_22"),
-			telegram.NewInlineKeyboardButtonData(" ⚪️ ", "PRESS_23"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_21"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_22"),
+			telegram.NewInlineKeyboardButtonData(" ▪️ ", "PRESS_23"),
 			telegram.NewInlineKeyboardButtonData(" 🔺 ", "PRESS_24"),
 			telegram.NewInlineKeyboardButtonData(" 🔸 ", "PRESS_25"),
 		),
