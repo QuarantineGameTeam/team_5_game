@@ -67,6 +67,9 @@ func SendBattlefield(callbackQuery *telegram.CallbackQuery) {
 			telegram.NewInlineKeyboardButtonData(" 🔺 ", "PRESS_24"),
 			telegram.NewInlineKeyboardButtonData(" 🔸 ", "PRESS_25"),
 		),
+		telegram.NewInlineKeyboardRow(
+			telegram.NewInlineKeyboardButtonData(" restart game ", "CLAN_SELECT"),
+		),
 	)
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
