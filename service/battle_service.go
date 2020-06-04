@@ -24,7 +24,7 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	var clanSelected string
 	var startPosition int
 
-	clanSelected, startPosition = clanParameters(callbackQuery)
+	clanSelected, startPosition = ClanParameters(callbackQuery)
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+clanSelected, nil)
 	SendBattlefield(startPosition, clanSelected, callbackQuery)
@@ -63,7 +63,7 @@ func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.Cal
 	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
 }
 
-func clanParameters(callbackQuery *telegram.CallbackQuery) (string, int) {
+func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, int) {
 	var emoji string
 	var startPosition int
 

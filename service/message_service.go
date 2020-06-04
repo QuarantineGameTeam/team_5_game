@@ -38,7 +38,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			if err != nil {
 				fmt.Println("Could not convert Data to int:", err)
 			}
-			clanEmoji, _ := clanParameters(callbackQuery)
+			clanEmoji, _ := ClanParameters(callbackQuery)
 			SendBattlefield(position, clanEmoji, callbackQuery)
 		}
 	}
