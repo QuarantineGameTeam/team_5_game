@@ -34,4 +34,7 @@ func ProcessClanSelection(callbackQuery *telegram.CallbackQuery) {
 	}
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Welcome to " + user.Clan + " clan)", nil)
+
+	SendStartBattleMessage(callbackQuery)
 }
+

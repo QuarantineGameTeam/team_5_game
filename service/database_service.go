@@ -6,8 +6,8 @@ import (
 	"log"
 	"strconv"
 	"team_5_game/config"
-	"team_5_game/model/telegram"
 	"team_5_game/model/database"
+	"team_5_game/model/telegram"
 )
 
 const userPrefix = "USER_"
