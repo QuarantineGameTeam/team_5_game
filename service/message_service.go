@@ -29,6 +29,8 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			ProcessClanSelection(callbackQuery)
 		case strings.HasPrefix(callbackQuery.Data, "START_BATTLE"):
 			ProcessBattleStarting(callbackQuery)
+		case strings.HasPrefix(callbackQuery.Data, "PRESS"):
+			SendBattlefield(callbackQuery)
 		}
 	}
 }
