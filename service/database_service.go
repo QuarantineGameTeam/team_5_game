@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"team_5_game/config"
 	"team_5_game/model/database"
+	"team_5_game/model/telegram"
 )
 
 const userPrefix = "USER_"
@@ -61,4 +62,27 @@ func SaveUserToDB(user *database.User) error {
 
 	log.Println("User successfully saved to DB, ID", user.ID)
 	return nil
+}
+
+func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
+  log.Println("Start clan saving")
+
+	user, err := GetUserFromDB(callbackQuery.From.ID) 
+	if err != nil {
+		log.Println("Could not get user", err)
+	}
+
+	clanName := string(callbackQuery.Data)
+
+	user.Clan = clanName
+	
+	out, err := json.Marshal(user)
+	if err != nil {
+		log.Println("Could not marshal user", err)
+	}
+
+  err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
+  if err != nil {
+    log.Println("Could not save clan", err)
+	}
 }

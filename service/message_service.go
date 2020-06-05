@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 	"team_5_game/config"
 	"team_5_game/model/telegram"
@@ -30,7 +33,13 @@ func ProcessWebhookMessage(update *telegram.Update) {
 		case strings.HasPrefix(callbackQuery.Data, "START_BATTLE"):
 			ProcessBattleStarting(callbackQuery)
 		case strings.HasPrefix(callbackQuery.Data, "PRESS"):
-			SendBattlefield(callbackQuery)
+			re := regexp.MustCompile("[0-9]+")
+			position, err := strconv.Atoi(re.FindAllString(callbackQuery.Data, -1)[0]) // getting number from callbackQuery.Data
+			if err != nil {
+				fmt.Println("Could not convert Data to int:", err)
+			}
+			clanEmoji, _ := ClanParameters(callbackQuery)
+			SendBattlefield(position, clanEmoji, callbackQuery)
 		}
 	}
 }

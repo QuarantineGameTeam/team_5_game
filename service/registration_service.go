@@ -20,7 +20,8 @@ func RegisterUser(message *telegram.Message) {
 		user := database.User{
 			ID:            message.From.ID,
 			FirstName:     message.From.FirstName,
-			Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
+			Clan:          "NO_CLAN",
+			// Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
 			BattleCounter: 0,
 			WinCounter:    0,
 		}
