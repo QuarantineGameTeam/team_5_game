@@ -48,8 +48,10 @@ func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.Cal
 			var btn telegram.InlineKeyboardButton
 			if j == position {
 				btn = telegram.NewInlineKeyboardButtonData(clanEmoji, "PRESS_"+strconv.Itoa(j))
+			} else if IsAvailable(j, position) {
+				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory+"ok", "PRESS_"+strconv.Itoa(j))
 			} else {
-				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_"+strconv.Itoa(j))
+				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_UNAVAILABLE")
 			}
 			row = append(row, btn)
 		}
@@ -85,4 +87,32 @@ func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, int) {
 	}
 
 	return emoji, startPosition
+}
+
+func IsAvailable(j int, position int) bool {
+	res := false
+	for _, element := range AvailableTerritory(position) {
+		if j == element {
+			res = true
+			break
+		}
+	}
+	return res
+}
+
+func AvailableTerritory(position int) []int {
+	var availableTerritory []int
+	if !(position%5 == 1) {
+		availableTerritory = append(availableTerritory, position-1)
+		availableTerritory = append(availableTerritory, position+4)
+		availableTerritory = append(availableTerritory, position-6)
+	}
+	if !(position%5 == 0) {
+		availableTerritory = append(availableTerritory, position+1)
+		availableTerritory = append(availableTerritory, position+6)
+		availableTerritory = append(availableTerritory, position-4)
+	}
+	availableTerritory = append(availableTerritory, position+5)
+	availableTerritory = append(availableTerritory, position-5)
+	return availableTerritory
 }
