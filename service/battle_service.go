@@ -15,7 +15,7 @@ func SendStartBattleMessage(callbackQuery *telegram.CallbackQuery) {
 		),
 	)
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Do you want to start a battle?", &replyMarkup)
+	SendMessage(callbackQuery.Message.Chat.ID, "Хочеш почати бій?", &replyMarkup)
 }
 
 func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
@@ -26,7 +26,8 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 
 	clanSelected, startPosition = ClanParameters(callbackQuery)
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+clanSelected, nil)
+	SendMessage(callbackQuery.Message.Chat.ID, "Твоє місцезнаходження на карті позначене отак: "+
+		clanSelected, nil)
 	SendBattlefield(startPosition, clanSelected, callbackQuery)
 }
 
@@ -62,7 +63,7 @@ func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.Cal
 		replyMarkup.InlineKeyboard = append(replyMarkup.InlineKeyboard, row)
 	}
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
+	SendMessage(callbackQuery.Message.Chat.ID, "Обери яку клітинку хочеш захопити: ", &replyMarkup)
 }
 
 func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, int) {

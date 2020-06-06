@@ -5,7 +5,7 @@ import (
 )
 
 func StartBot() {
-	log.Println("Starting Telegram bot")
+	log.Println("Starting Telegram bot.")
 
 	CreateHttpServer()
 	RegisterWebhook()

@@ -61,7 +61,7 @@ func EditMessageReplyMarkup(chatID int64, messageID int64, replyMarkup *telegram
 func convertToString(update *telegram.Update) string {
 	out, err := json.Marshal(update)
 	if err != nil {
-		log.Println("Could not marshal update message", err)
+		log.Println("Could not marshal update message.", err)
 		return "[Unable to convert to string]"
 	}
 
@@ -92,7 +92,7 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 		return errors.New("unexpected status" + res.Status)
 	}
 
-	log.Println("Message sent successfully")
+	log.Println("Message sent successfully.")
 	return nil
 }
 
@@ -120,7 +120,7 @@ func editMessageReplyMarkup(chatID int64, messageID int64, replyMarkup *telegram
 		return errors.New("unexpected status" + res.Status)
 	}
 
-	log.Println("Message changed successfully")
+	log.Println("Message changed successfully.")
 	return nil
 }
 

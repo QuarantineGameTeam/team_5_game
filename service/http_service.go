@@ -12,7 +12,7 @@ import (
 const webhookPath = "/webhook"
 
 func webhookHandler(_ http.ResponseWriter, req *http.Request) {
-	log.Println("Received webhook message")
+	log.Println("Received webhook message.")
 
 	body := &telegram.Update{}
 
@@ -26,7 +26,7 @@ func webhookHandler(_ http.ResponseWriter, req *http.Request) {
 }
 
 func CreateHttpServer() {
-	log.Println("Starting HTTP server")
+	log.Println("Starting HTTP server.")
 
 	http.HandleFunc(webhookPath, webhookHandler)
 
@@ -37,12 +37,12 @@ func CreateHttpServer() {
 		}
 	}()
 
-	log.Println("HTTP server started successfully")
+	log.Println("HTTP server started successfully.")
 }
 
 func RegisterWebhook() {
 	if config.RegisterWebhook() {
-		log.Println("Registering Webhook")
+		log.Println("Registering Webhook.")
 		reqBytes := []byte(`{"url":"` + config.ServerURL() + webhookPath + `"}`)
 
 		_, err := http.Post(
@@ -53,6 +53,6 @@ func RegisterWebhook() {
 			log.Fatalln("Could not register Webhook", err)
 		}
 
-		log.Println("Webhook registered successfully")
+		log.Println("Webhook registered successfully.")
 	}
 }

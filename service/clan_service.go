@@ -20,7 +20,7 @@ func StartClanSelection(message *telegram.Message) {
 		),
 	)
 
-	SendMessage(message.Chat.ID, "Please select a clan", &replyMarkup)
+	SendMessage(message.Chat.ID, "Обери свій клан: ", &replyMarkup)
 }
 
 func ProcessClanSelection(callbackQuery *telegram.CallbackQuery) {
@@ -30,10 +30,10 @@ func ProcessClanSelection(callbackQuery *telegram.CallbackQuery) {
 
 	user, err := GetUserFromDB(callbackQuery.From.ID) 
 	if err != nil {
-		log.Println("Could not get user", err)
+		log.Println("Could not get user.", err)
 	}
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Welcome to " + user.Clan + " clan)", nil)
+	SendMessage(callbackQuery.Message.Chat.ID, "Вітаємо у " + user.Clan + " клані!)", nil)
 
 	SendStartBattleMessage(callbackQuery)
 }

@@ -7,20 +7,20 @@ import (
 )
 
 func RegisterUser(message *telegram.Message) {
-	log.Println("Start user registration")
+	log.Println("Start user registration.")
 
 	user, _ := GetUserFromDB(message.From.ID)
 	if user != nil {
 		SendMessage(
 			message.Chat.ID,
-			"Hello "+message.From.FirstName+" you already registered!!!",
+			"Привіт, "+message.From.FirstName+", із поверненням! 😊",
 			nil)
-		log.Println("User already registered")
+		log.Println("User is already registered.")
 	} else {
 		user := database.User{
-			ID:            message.From.ID,
-			FirstName:     message.From.FirstName,
-			Clan:          "NO_CLAN",
+			ID:        message.From.ID,
+			FirstName: message.From.FirstName,
+			Clan:      "NO_CLAN",
 			// Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
 			BattleCounter: 0,
 			WinCounter:    0,
@@ -29,17 +29,17 @@ func RegisterUser(message *telegram.Message) {
 		if err == nil {
 			SendMessage(
 				message.Chat.ID,
-				"Hello "+message.From.FirstName+" thank you for registration!!!",
+				"Привіт, "+message.From.FirstName+", ми на тебе чекали) Що ж, розпочнемо?",
 				nil)
-			log.Println("User successfully registered")
+			log.Println("User successfully registered.")
 
 			StartClanSelection(message)
 		} else {
 			SendMessage(
 				message.Chat.ID,
-				"Something went wrong please contact the administrator!!!",
+				"Упс! Щось пішло не так - звернись до адміністратора.",
 				nil)
-			log.Println("User not registered")
+			log.Println("User was not registered.")
 		}
 
 	}

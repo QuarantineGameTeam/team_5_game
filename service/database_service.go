@@ -46,7 +46,7 @@ func GetUserFromDB(id int64) (*database.User, error) {
 }
 
 func SaveUserToDB(user *database.User) error {
-	log.Println("Save user to the DB, ID", user.ID)
+	log.Println("Saving user to the DB, ID", user.ID)
 
 	out, err := json.Marshal(user)
 	if err != nil {
