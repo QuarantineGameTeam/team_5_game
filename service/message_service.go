@@ -39,6 +39,10 @@ func ProcessWebhookMessage(update *telegram.Update) {
 				fmt.Println("Could not convert Data to int:", err)
 			}
 			clanEmoji, _ := ClanParameters(callbackQuery)
+			if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
+				SendMessage(callbackQuery.Message.Chat.ID, "☹️You can capture neighboring cells only:\n"+"↖️🔼↗️\n◀️"+clanEmoji+"▶️\n↙️🔽↘️", nil)
+			}
+
 			SendBattlefield(position, clanEmoji, callbackQuery)
 		}
 	}

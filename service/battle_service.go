@@ -49,9 +49,9 @@ func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.Cal
 			if j == position {
 				btn = telegram.NewInlineKeyboardButtonData(clanEmoji, "PRESS_"+strconv.Itoa(j))
 			} else if IsAvailable(j, position) {
-				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory+"ok", "PRESS_"+strconv.Itoa(j))
+				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_"+strconv.Itoa(j))
 			} else {
-				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_UNAVAILABLE")
+				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_UNAVAILABLE_"+strconv.Itoa(position))
 			}
 			row = append(row, btn)
 		}
@@ -114,5 +114,19 @@ func AvailableTerritory(position int) []int {
 	}
 	availableTerritory = append(availableTerritory, position+5)
 	availableTerritory = append(availableTerritory, position-5)
+	availableTerritory = append(availableTerritory, position)
 	return availableTerritory
 }
+
+/* функція вертає номери доступних для ходу клітинок рядком через пробіл
+func AvailableCells(position int) string {
+	cells := AvailableTerritory(position)
+	availableCells := ""
+	for _, cell := range cells {
+		if cell > 0 && cell < 26 {
+			availableCells += strconv.Itoa(cell) + " "
+		}
+	}
+	return availableCells
+}
+*/
