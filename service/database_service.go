@@ -88,31 +88,6 @@ func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
 	}
 }
 
-/*func AppendUserTrack(callbackQuery *telegram.CallbackQuery) {
-	log.Println("Start track saving")
-
-	user, err := GetUserFromDB(callbackQuery.From.ID)
-	if err != nil {
-		log.Println("Could not get user", err)
-	}
-	re := regexp.MustCompile("[0-9]+")
-	position, err := strconv.Atoi(re.FindAllString(callbackQuery.Data, -1)[0]) // getting number from callbackQuery.Data
-	if err != nil {
-		fmt.Println("Could not convert Data to int:", err)
-	}
-	user.Track = append(user.Track, position)
-
-	out, err := json.Marshal(user)
-	if err != nil {
-		log.Println("Could not marshal user", err)
-	}
-
-	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
-	if err != nil {
-		log.Println("Could not save track", err)
-	}
-}
-*/
 func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
 	log.Println("Start track saving")
 
