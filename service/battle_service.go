@@ -23,18 +23,21 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 
 	var clanSelected string
 	var startPosition int
+	var clanEmoji string
 
-	clanSelected, startPosition = ClanParameters(callbackQuery)
+	clanSelected, clanEmoji, startPosition = ClanParameters(callbackQuery)
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+clanSelected, nil)
-	SendBattlefield(startPosition, clanSelected, callbackQuery)
+	SendBattlefield(startPosition, clanSelected, clanEmoji, callbackQuery)
+	AppendUserTrack(callbackQuery, startPosition)
 }
 
-func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.CallbackQuery) {
+func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) {
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
 
 	var unknownTerritory string
 	unknownTerritory = "▪️"
+	user, _ := GetUserFromDB(callbackQuery.From.ID)
 
 	replyMarkup := telegram.InlineKeyboardMarkup{}
 
@@ -47,11 +50,18 @@ func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.Cal
 		for j := min; j <= max; j++ {
 			var btn telegram.InlineKeyboardButton
 			if j == position {
-				btn = telegram.NewInlineKeyboardButtonData(clanEmoji, "PRESS_"+strconv.Itoa(j))
+				btn = telegram.NewInlineKeyboardButtonData(emoji, "PRESS_"+strconv.Itoa(j))
 			} else if IsAvailable(j, position) {
 				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_"+strconv.Itoa(j))
 			} else {
 				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_UNAVAILABLE_"+strconv.Itoa(position))
+			}
+			if IsThere(j, user.Track) {
+				if btn.Text == unknownTerritory && len(user.Track) > 1 {
+					btn.Text = clanEmoji
+				} else {
+					btn.Text += clanEmoji
+				}
 			}
 			row = append(row, btn)
 		}
@@ -65,8 +75,9 @@ func SendBattlefield(position int, clanEmoji string, callbackQuery *telegram.Cal
 	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
 }
 
-func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, int) {
+func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, string, int) {
 	var emoji string
+	var clanEmoji string
 	var startPosition int
 
 	user, err := GetUserFromDB(callbackQuery.From.ID)
@@ -76,17 +87,20 @@ func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, int) {
 
 	switch user.Clan {
 	case "CLAN_SELECT_1":
-		emoji = "💜"
+		emoji = "💙"
+		clanEmoji = "🔹"
 		startPosition = 20
 	case "CLAN_SELECT_2":
-		emoji = "💚"
+		emoji = "🧡"
+		clanEmoji = "🔸"
 		startPosition = 3
 	case "CLAN_SELECT_3":
-		emoji = "💛"
+		emoji = "❤️"
+		clanEmoji = "🔻"
 		startPosition = 24
 	}
 
-	return emoji, startPosition
+	return emoji, clanEmoji, startPosition
 }
 
 func IsAvailable(j int, position int) bool {
@@ -116,6 +130,17 @@ func AvailableTerritory(position int) []int {
 	availableTerritory = append(availableTerritory, position-5)
 	availableTerritory = append(availableTerritory, position)
 	return availableTerritory
+}
+
+func IsThere(element int, arr []int) bool {
+	res := false
+	for _, elem := range arr {
+		if elem == element {
+			res = true
+			break
+		}
+	}
+	return res
 }
 
 /* функція вертає номери доступних для ходу клітинок рядком через пробіл

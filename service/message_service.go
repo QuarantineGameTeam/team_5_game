@@ -38,12 +38,14 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			if err != nil {
 				fmt.Println("Could not convert Data to int:", err)
 			}
-			clanEmoji, _ := ClanParameters(callbackQuery)
+			emoji, clanEmoji, _ := ClanParameters(callbackQuery)
 			if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
-				SendMessage(callbackQuery.Message.Chat.ID, "☹️You can capture neighboring cells only:\n"+"↖️🔼↗️\n◀️"+clanEmoji+"▶️\n↙️🔽↘️", nil)
+				message := "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + emoji + "▶️\n↙️🔽↘️"
+				SendMessage(callbackQuery.Message.Chat.ID, message, nil)
 			}
+			AppendUserTrack(callbackQuery, position)
 
-			SendBattlefield(position, clanEmoji, callbackQuery)
+			SendBattlefield(position, emoji, clanEmoji, callbackQuery)
 		}
 	}
 }
