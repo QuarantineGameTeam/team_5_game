@@ -14,3 +14,8 @@ type Clan struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
+
+type ClanB struct {
+	Sign       string `json:"sign"`
+	PlayerSign string `json:"player_sign"`
+}

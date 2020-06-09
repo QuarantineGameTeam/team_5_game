@@ -1,6 +1,7 @@
 package service
 
 import (
+	"team_5_game/model/database"
 	"team_5_game/model/telegram"
 )
 
@@ -16,15 +17,15 @@ type Point struct {
 }
 
 type Player struct {
-	User  *telegram.User `json:"user"`
-	Point *Point         `json:"point"`
-	Clan  *Clan          `json:"clan"`
+	User  *telegram.User  `json:"user"`
+	Point *Point          `json:"point"`
+	Clan  *database.ClanB `json:"clan"`
 }
 
-type Clan struct {
-	Sign       string `json:"sign"`
-	PlayerSign string `json:"player_sign"`
-}
+// type Clan struct {
+// 	Sign       string `json:"sign"`
+// 	PlayerSign string `json:"player_sign"`
+// }
 
 func IsFull(battleField Battlefield) bool {
 	res := true
