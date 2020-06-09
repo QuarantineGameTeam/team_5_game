@@ -47,6 +47,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 
 			replyMarkup := SendBattlefield(position, emoji, clanEmoji, callbackQuery)                            // getting field markup
 			EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, &replyMarkup) // editing previous markup
+			IsFull(callbackQuery)
 		}
 	}
 }

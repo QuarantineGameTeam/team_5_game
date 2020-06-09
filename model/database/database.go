@@ -5,9 +5,9 @@ type User struct {
 	FirstName string `json:"first_name"`
 	Clan      string `json:"clan"`
 	// Clan          *Clan  `json:"clan"`
-	BattleCounter int   `json:"battle_counter"`
-	WinCounter    int   `json:"win_counter"`
-	Track         []int `json:"track"`
+	BattleCounter int     `json:"battle_counter"`
+	WinCounter    int     `json:"win_counter"`
+	Track         [25]int `json:"track"`
 }
 
 type Clan struct {

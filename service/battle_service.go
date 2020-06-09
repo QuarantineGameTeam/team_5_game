@@ -25,8 +25,8 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 
 	clanSelected, clanEmoji, startPosition = ClanParameters(callbackQuery)
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: " + clanSelected, nil)
-	
+	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+clanSelected, nil)
+
 	replyMarkup := SendBattlefield(startPosition, clanSelected, clanEmoji, callbackQuery)            // getting field markup
 	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup) // creating message with new markup
 
@@ -70,6 +70,7 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 
 		replyMarkup.InlineKeyboard = append(replyMarkup.InlineKeyboard, row)
 	}
+
 	return replyMarkup
 }
 
@@ -130,7 +131,7 @@ func AvailableTerritory(position int) []int {
 	return availableTerritory
 }
 
-func IsThere(element int, arr []int) bool {
+func IsThere(element int, arr [25]int) bool {
 	res := false
 	for _, elem := range arr {
 		if elem == element {
