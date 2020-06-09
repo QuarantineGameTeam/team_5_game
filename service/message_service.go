@@ -45,7 +45,8 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			}
 			AppendUserTrack(callbackQuery, position)
 
-			SendBattlefield(position, emoji, clanEmoji, callbackQuery)
+			replyMarkup := SendBattlefield(position, emoji, clanEmoji, callbackQuery)                            // getting field markup
+			EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, &replyMarkup) // editing previous markup
 		}
 	}
 }
