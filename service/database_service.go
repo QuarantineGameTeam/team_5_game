@@ -2,12 +2,13 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"strconv"
 	"team_5_game/config"
 	"team_5_game/model/database"
 	"team_5_game/model/telegram"
+
+	"github.com/go-redis/redis/v8"
 )
 
 const userPrefix = "USER_"
@@ -65,9 +66,9 @@ func SaveUserToDB(user *database.User) error {
 }
 
 func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
-  log.Println("Start clan saving")
+	log.Println("Start clan saving")
 
-	user, err := GetUserFromDB(callbackQuery.From.ID) 
+	user, err := GetUserFromDB(callbackQuery.From.ID)
 	if err != nil {
 		log.Println("Could not get user", err)
 	}
@@ -75,14 +76,34 @@ func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
 	clanName := string(callbackQuery.Data)
 
 	user.Clan = clanName
-	
+
 	out, err := json.Marshal(user)
 	if err != nil {
 		log.Println("Could not marshal user", err)
 	}
 
-  err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
-  if err != nil {
-    log.Println("Could not save clan", err)
+	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
+	if err != nil {
+		log.Println("Could not save clan", err)
+	}
+}
+
+func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
+	log.Println("Start track saving")
+
+	user, err := GetUserFromDB(callbackQuery.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+	}
+	user.Track = append(user.Track, position)
+
+	out, err := json.Marshal(user)
+	if err != nil {
+		log.Println("Could not marshal user", err)
+	}
+
+	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
+	if err != nil {
+		log.Println("Could not save track", err)
 	}
 }
