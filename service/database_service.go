@@ -65,29 +65,6 @@ func SaveUserToDB(user *database.User) error {
 	return nil
 }
 
-func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
-	log.Println("Start clan saving")
-
-	user, err := GetUserFromDB(callbackQuery.From.ID)
-	if err != nil {
-		log.Println("Could not get user", err)
-	}
-
-	clanName := string(callbackQuery.Data)
-
-	user.Clan = clanName
-
-	out, err := json.Marshal(user)
-	if err != nil {
-		log.Println("Could not marshal user", err)
-	}
-
-	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
-	if err != nil {
-		log.Println("Could not save clan", err)
-	}
-}
-
 func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
 	log.Println("Start track saving")
 

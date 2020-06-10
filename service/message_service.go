@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -36,7 +35,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			re := regexp.MustCompile("[0-9]+")
 			position, err := strconv.Atoi(re.FindAllString(callbackQuery.Data, -1)[0]) // getting number from callbackQuery.Data
 			if err != nil {
-				fmt.Println("Could not convert Data to int:", err)
+				log.Println("Could not convert Data to int:", err)
 			}
 			emoji, clanEmoji, _ := ClanParameters(callbackQuery)
 			if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {

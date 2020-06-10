@@ -2,6 +2,8 @@ package service
 
 import (
 	"log"
+	"strconv"
+	"strings"
 	"team_5_game/model/telegram"
 )
 
@@ -28,13 +30,49 @@ func ProcessClanSelection(callbackQuery *telegram.CallbackQuery) {
 
 	SaveUserClan(callbackQuery)
 
-	user, err := GetUserFromDB(callbackQuery.From.ID) 
+	user, err := GetUserFromDB(callbackQuery.From.ID)
 	if err != nil {
 		log.Println("Could not get user", err)
 	}
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Welcome to " + user.Clan + " clan)", nil)
+	SendMessage(callbackQuery.Message.Chat.ID, "Welcome to "+user.Clan.Name+" clan)", nil)
 
 	SendStartBattleMessage(callbackQuery)
 }
 
+func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
+	log.Println("Start clan saving")
+
+	user, err := GetUserFromDB(callbackQuery.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+		return
+	}
+
+	clanID := strings.Trim(string(callbackQuery.Data), "SELECT_CLAN_")
+	user.Clan.ID, err = strconv.Atoi(clanID)
+	if err != nil {
+		log.Println("Could not get user's clan ID", err)
+		return
+	}
+
+	switch user.Clan.ID {
+	case 1:
+		user.Clan.Name = "Blue Jays"
+	case 2:
+		user.Clan.Name = "Golden Orioles"
+	case 3:
+		user.Clan.Name = "Cardinals"
+	default:
+		log.Println("Could not set the clan's name", err)
+		return
+	}
+
+	err = SaveUserToDB(user)
+	if err != nil {
+		log.Println("Could not save clan to DB", err)
+	} else {
+		log.Printf("User's clan successfully saved to DB, ID: %d, Name: %s\n",
+			user.Clan.ID, user.Clan.Name)
+	}
+}

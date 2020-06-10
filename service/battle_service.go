@@ -85,16 +85,16 @@ func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, string, int)
 		log.Println("Could not get user", err)
 	}
 
-	switch user.Clan {
-	case "CLAN_SELECT_1":
+	switch user.Clan.ID {
+	case 1:
 		emoji = "💙"
 		clanEmoji = "🔹"
 		startPosition = 20
-	case "CLAN_SELECT_2":
+	case 2:
 		emoji = "🧡"
 		clanEmoji = "🔸"
 		startPosition = 3
-	case "CLAN_SELECT_3":
+	case 3:
 		emoji = "❤️"
 		clanEmoji = "🔻"
 		startPosition = 24
