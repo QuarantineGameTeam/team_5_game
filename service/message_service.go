@@ -40,7 +40,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 			}
 			emoji, clanEmoji, _ := ClanParameters(callbackQuery)
 			
-			sendHintIfUnvaliable(callbackQuery, emoji)
+			sendHintIfUnavailable(callbackQuery, emoji)
 
 			AppendUserTrack(callbackQuery, position)
 
@@ -51,7 +51,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 	}
 }
 
-func sendHintIfUnvaliable(callbackQuery *telegram.CallbackQuery, emoji string) {
+func sendHintIfUnavailable(callbackQuery *telegram.CallbackQuery, emoji string) {
 	if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
 		SendAnswerCallbackQuery(callbackQuery.ID, "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + emoji + "▶️\n↙️🔽↘️", true)
 	}
