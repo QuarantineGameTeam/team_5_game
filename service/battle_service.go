@@ -19,8 +19,6 @@ func SendStartBattleMessage(callbackQuery *telegram.CallbackQuery) {
 }
 
 func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
-	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
-
 	var clanSelected string
 	var startPosition int
 	var clanEmoji string
@@ -28,13 +26,14 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	clanSelected, clanEmoji, startPosition = ClanParameters(callbackQuery)
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+clanSelected, nil)
-	SendBattlefield(startPosition, clanSelected, clanEmoji, callbackQuery)
+
+	replyMarkup := SendBattlefield(startPosition, clanSelected, clanEmoji, callbackQuery)            // getting field markup
+	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup) // creating message with new markup
+
 	AppendUserTrack(callbackQuery, startPosition)
 }
 
-func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) {
-	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
-
+func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
 	var unknownTerritory string
 	unknownTerritory = "▪️"
 	user, _ := GetUserFromDB(callbackQuery.From.ID)
@@ -72,7 +71,7 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 		replyMarkup.InlineKeyboard = append(replyMarkup.InlineKeyboard, row)
 	}
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
+	return replyMarkup
 }
 
 func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, string, int) {
@@ -132,7 +131,7 @@ func AvailableTerritory(position int) []int {
 	return availableTerritory
 }
 
-func IsThere(element int, arr []int) bool {
+func IsThere(element int, arr [25]int) bool {
 	res := false
 	for _, elem := range arr {
 		if elem == element {

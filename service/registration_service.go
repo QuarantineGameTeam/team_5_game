@@ -24,7 +24,7 @@ func RegisterUser(message *telegram.Message) {
 			// Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
 			BattleCounter: 0,
 			WinCounter:    0,
-			Track:         nil,
+			//Track:         0,
 		}
 		err := SaveUserToDB(&user)
 		if err == nil {
