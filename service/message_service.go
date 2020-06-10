@@ -6,8 +6,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"regexp"
-	"strconv"
 	"strings"
 	"team_5_game/config"
 	"team_5_game/model/telegram"
@@ -32,19 +30,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 		case strings.HasPrefix(callbackQuery.Data, "START_BATTLE"):
 			ProcessBattleStarting(callbackQuery)
 		case strings.HasPrefix(callbackQuery.Data, "PRESS"):
-			re := regexp.MustCompile("[0-9]+")
-			position, err := strconv.Atoi(re.FindAllString(callbackQuery.Data, -1)[0]) // getting number from callbackQuery.Data
-			if err != nil {
-				log.Println("Could not convert Data to int:", err)
-			}
-			emoji, clanEmoji, _ := ClanParameters(callbackQuery)
-			if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
-				message := "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + emoji + "▶️\n↙️🔽↘️"
-				SendMessage(callbackQuery.Message.Chat.ID, message, nil)
-			}
-			AppendUserTrack(callbackQuery, position)
-
-			SendBattlefield(position, emoji, clanEmoji, callbackQuery)
+			ProcessNextMove(callbackQuery)
 		}
 	}
 }

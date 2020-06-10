@@ -2,7 +2,9 @@ package service
 
 import (
 	"log"
+	"regexp"
 	"strconv"
+	"strings"
 	"team_5_game/model/telegram"
 )
 
@@ -18,18 +20,42 @@ func SendStartBattleMessage(callbackQuery *telegram.CallbackQuery) {
 	SendMessage(callbackQuery.Message.Chat.ID, "Do you want to start a battle?", &replyMarkup)
 }
 
+// ProcessNextMove - player's intention to go to the next sector.
+func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
+	user, err := GetUserFromDB(callbackQuery.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+		return
+	}
+
+	// Getting number from callbackQuery.Data
+	re := regexp.MustCompile("[0-9]+")
+	position, err := strconv.Atoi(re.FindAllString(callbackQuery.Data, -1)[0])
+	if err != nil {
+		log.Println("Could not convert Data to int:", err)
+	}
+
+	if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
+		message := "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + Clans[user.ClanID].PlayerSign + "▶️\n↙️🔽↘️"
+		SendMessage(callbackQuery.Message.Chat.ID, message, nil)
+	}
+	AppendUserTrack(callbackQuery, position)
+
+	SendBattlefield(position, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+}
+
 func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
 
-	var clanSelected string
-	var startPosition int
-	var clanEmoji string
+	user, err := GetUserFromDB(callbackQuery.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+		return
+	}
 
-	clanSelected, clanEmoji, startPosition = ClanParameters(callbackQuery)
-
-	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+clanSelected, nil)
-	SendBattlefield(startPosition, clanSelected, clanEmoji, callbackQuery)
-	AppendUserTrack(callbackQuery, startPosition)
+	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
+	SendBattlefield(Clans[user.ClanID].StartPosition, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+	AppendUserTrack(callbackQuery, Clans[user.ClanID].StartPosition)
 }
 
 func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) {
@@ -73,34 +99,6 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 	}
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
-}
-
-func ClanParameters(callbackQuery *telegram.CallbackQuery) (string, string, int) {
-	var emoji string
-	var clanEmoji string
-	var startPosition int
-
-	user, err := GetUserFromDB(callbackQuery.From.ID)
-	if err != nil {
-		log.Println("Could not get user", err)
-	}
-
-	switch user.Clan.ID {
-	case 1:
-		emoji = "💙"
-		clanEmoji = "🔹"
-		startPosition = 20
-	case 2:
-		emoji = "🧡"
-		clanEmoji = "🔸"
-		startPosition = 3
-	case 3:
-		emoji = "❤️"
-		clanEmoji = "🔻"
-		startPosition = 24
-	}
-
-	return emoji, clanEmoji, startPosition
 }
 
 func IsAvailable(j int, position int) bool {
