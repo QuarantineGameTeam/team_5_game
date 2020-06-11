@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  web:
+      build: .
+      working_dir: /go/src
+      ports:
+       - "3000:3000"
+      volumes:
+       - .:/go/src
+      links:
+       - db
+  db:
+      image: redis
+      restart: unless-stopped
+      ports:
+       - "6379:6379"
+      volumes:
+       - ../data/redis:/data
+      entrypoint: redis-server --appendonly yes
