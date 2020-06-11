@@ -72,7 +72,7 @@ func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
 	if err != nil {
 		log.Println("Could not get user", err)
 	}
-	user.Track = append(user.Track, position)
+	user.Track[position-1] = position
 
 	out, err := json.Marshal(user)
 	if err != nil {

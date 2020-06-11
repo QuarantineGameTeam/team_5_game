@@ -4,7 +4,6 @@ import (
 	"log"
 	"regexp"
 	"strconv"
-	"strings"
 	"team_5_game/model/telegram"
 )
 
@@ -35,17 +34,17 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 		log.Println("Could not convert Data to int:", err)
 	}
 
-	if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
-		message := "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + Clans[user.ClanID].PlayerSign + "▶️\n↙️🔽↘️"
-		SendMessage(callbackQuery.Message.Chat.ID, message, nil)
-	}
+	sendHintIfUnavailable(callbackQuery, Clans[user.ClanID].PlayerSign)
 	AppendUserTrack(callbackQuery, position)
 
-	SendBattlefield(position, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+	// Get the next field markup.
+	replyMarkup := SendBattlefield(position, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+	// Editing previous markup
+	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, &replyMarkup)
+	IsFull(callbackQuery)
 }
 
 func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
-	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
 
 	user, err := GetUserFromDB(callbackQuery.From.ID)
 	if err != nil {
@@ -54,13 +53,14 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	}
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
-	SendBattlefield(Clans[user.ClanID].StartPosition, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+
+	replyMarkup := SendBattlefield(Clans[user.ClanID].StartPosition, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery) // getting field markup
+	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)                                            // creating message with new markup
+
 	AppendUserTrack(callbackQuery, Clans[user.ClanID].StartPosition)
 }
 
-func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) {
-	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
-
+func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
 	var unknownTerritory string
 	unknownTerritory = "▪️"
 	user, _ := GetUserFromDB(callbackQuery.From.ID)
@@ -98,7 +98,7 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 		replyMarkup.InlineKeyboard = append(replyMarkup.InlineKeyboard, row)
 	}
 
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)
+	return replyMarkup
 }
 
 func IsAvailable(j int, position int) bool {
@@ -130,7 +130,7 @@ func AvailableTerritory(position int) []int {
 	return availableTerritory
 }
 
-func IsThere(element int, arr []int) bool {
+func IsThere(element int, arr [25]int) bool {
 	res := false
 	for _, elem := range arr {
 		if elem == element {

@@ -35,6 +35,12 @@ func ProcessWebhookMessage(update *telegram.Update) {
 	}
 }
 
+func sendHintIfUnavailable(callbackQuery *telegram.CallbackQuery, emoji string) {
+	if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
+		SendAnswerCallbackQuery(callbackQuery.ID, "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + emoji + "▶️\n↙️🔽↘️", true)
+	}
+}
+
 func SendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) {
 	err := sendMessage(chatID, message, replyMarkup)
 	if err != nil {
@@ -46,6 +52,13 @@ func EditMessageReplyMarkup(chatID int64, messageID int64, replyMarkup *telegram
 	err := editMessageReplyMarkup(chatID, messageID, replyMarkup)
 	if err != nil {
 		log.Println("Error in editing message reply markup:", err)
+	}
+}
+
+func SendAnswerCallbackQuery(callbackQueryID string, text string, showAlert bool) {
+	err := sendAnswerCallbackQuery(callbackQueryID, text, showAlert)
+	if err != nil {
+		log.Println("Error in sending alert:", err)
 	}
 }
 
@@ -112,6 +125,34 @@ func editMessageReplyMarkup(chatID int64, messageID int64, replyMarkup *telegram
 	}
 
 	log.Println("Message changed successfully")
+	return nil
+}
+
+func sendAnswerCallbackQuery(callbackQueryID string, text string, showAlert bool) error {
+	log.Println("Sending alert message: ", text)
+	reqBody := &telegram.AnswerCallbackQuery{
+		CallbackQueryID: callbackQueryID,
+		Text:            text,
+		ShowAlert:       showAlert,
+	}
+
+	reqBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return err
+	}
+
+	res, err := http.Post(
+		"https://api.telegram.org/bot"+config.BotToken()+"/answerCallbackQuery",
+		"application/json",
+		bytes.NewBuffer(reqBytes))
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusOK {
+		return errors.New("unexpected status" + res.Status)
+	}
+
+	log.Println("Alert sent successfully")
 	return nil
 }
 

@@ -26,16 +26,31 @@ type Clan struct {
 	PlayerSign string `json:"player_sign"`
 }
 
-func IsFull(battleField Battlefield) bool {
+func IsFull(callbackQuery *telegram.CallbackQuery) {
+	user, _ := GetUserFromDB(callbackQuery.From.ID)
 	res := true
-	for _, point := range battleField.Points {
-		if len(point.Text) == 0 {
+	for _, point := range user.Track {
+		if point == 0 {
 			res = false
 			break
 		}
 	}
-	return res
+
+	if res {
+		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
+		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
+		ClearPoints(callbackQuery)
+		SendStartBattleMessage(callbackQuery)
+	}
 }
+
+func ClearPoints(callbackQuery *telegram.CallbackQuery) {
+	user, _ := GetUserFromDB(callbackQuery.From.ID)
+	for _, point := range user.Track {
+		point -= point
+	}
+}
+
 func CapturePoint(point *Point, player *Player) {
 	point.Text += player.Clan.Sign
 	player.Point = point
