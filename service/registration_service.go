@@ -18,13 +18,13 @@ func RegisterUser(message *telegram.Message) {
 		log.Println("User already registered")
 	} else {
 		user := database.User{
-			ID:        message.From.ID,
-			FirstName: message.From.FirstName,
-			Clan:      "NO_CLAN",
-			// Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
+			ID:            message.From.ID,
+			FirstName:     message.From.FirstName,
+			ClanID:        0,
 			BattleCounter: 0,
 			WinCounter:    0,
-			//Track:         0,
+			// Track:         nil,
+			// Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
 		}
 		err := SaveUserToDB(&user)
 		if err == nil {
