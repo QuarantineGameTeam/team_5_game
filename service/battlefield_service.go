@@ -39,15 +39,8 @@ func IsFull(callbackQuery *telegram.CallbackQuery) {
 	if res {
 		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
 		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
-		ClearPoints(callbackQuery)
+		ClearUserTrack(callbackQuery)
 		SendStartBattleMessage(callbackQuery)
-	}
-}
-
-func ClearPoints(callbackQuery *telegram.CallbackQuery) {
-	user, _ := GetUserFromDB(callbackQuery.From.ID)
-	for _, point := range user.Track {
-		point -= point
 	}
 }
 
