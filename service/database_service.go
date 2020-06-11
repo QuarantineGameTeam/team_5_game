@@ -84,3 +84,24 @@ func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
 		log.Println("Could not save track", err)
 	}
 }
+
+func ClearUserTrack(callbackQuery *telegram.CallbackQuery) {
+	log.Println("Start track clearing")
+
+	user, err := GetUserFromDB(callbackQuery.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+	}
+	var tmp [25]int
+	user.Track = tmp
+
+	out, err := json.Marshal(user)
+	if err != nil {
+		log.Println("Could not marshal user", err)
+	}
+
+	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
+	if err != nil {
+		log.Println("Could not save cleared track", err)
+	}
+}
