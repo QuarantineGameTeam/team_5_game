@@ -15,21 +15,18 @@ var Clans = map[int]database.Clan{
 	3: database.Clan{"Cardinals", "❤️", "🔻", 21},
 }
 
+// StartClanSelection sends the clan menu to the user
 func StartClanSelection(message *telegram.Message) {
 	log.Println("Start clan selection for user ID", message.From.ID)
 
-	replyMarkup := telegram.NewInlineKeyboardMarkup(
-		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData(Clans[1].ClanSign+" "+Clans[1].Name, "CLAN_SELECT_1"),
-		),
-		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData(Clans[2].ClanSign+" "+Clans[2].Name, "CLAN_SELECT_2"),
-		),
-		telegram.NewInlineKeyboardRow(
-			telegram.NewInlineKeyboardButtonData(Clans[3].ClanSign+" "+Clans[3].Name, "CLAN_SELECT_3"),
-		),
-	)
-
+	replyMarkup := telegram.InlineKeyboardMarkup{}
+	for i, lim := 1, len(Clans); i <= lim; i++ {
+		buttonName := Clans[i].ClanSign + " " + Clans[i].Name
+		buttonData := "CLAN_SELECT_" + strconv.FormatInt(int64(i), 10)
+		button := telegram.NewInlineKeyboardButtonData(buttonName, buttonData)
+		row := telegram.NewInlineKeyboardRow(button)
+		replyMarkup.InlineKeyboard = append(replyMarkup.InlineKeyboard, row)
+	}
 	SendMessage(message.Chat.ID, "Please select a clan", &replyMarkup)
 }
 
