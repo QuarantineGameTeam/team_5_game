@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"team_5_game/model/database"
 	"team_5_game/model/telegram"
 )
 
@@ -38,7 +39,7 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 	AppendUserTrack(callbackQuery, position)
 
 	// Get the next field markup.
-	replyMarkup := SendBattlefield(position, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+	replyMarkup := SendBattlefield(position, user.ClanID, callbackQuery)
 	// Editing previous markup
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, &replyMarkup)
 	IsFull(callbackQuery)
@@ -52,15 +53,31 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 		return
 	}
 
+	battleID := user.ID
+	if user.CurrentBattle == 0 {
+		err = SetNextBattle(battleID)
+		if err != nil {
+			log.Println("Could not set next battlefield", err)
+			return
+		}
+		err = SetUserCurrentBattle(user.ID, battleID)
+		if err != nil {
+			return
+		}
+	} else {
+		log.Println("Could not start new battle: user is in battle now")
+		return
+	}
+
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
 
-	replyMarkup := SendBattlefield(Clans[user.ClanID].StartPosition, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery) // getting field markup
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)                                            // creating message with new markup
+	replyMarkup := SendBattlefield(Clans[user.ClanID].StartPosition, user.ClanID, callbackQuery)     // getting field markup
+	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup) // creating message with new markup
 
 	AppendUserTrack(callbackQuery, Clans[user.ClanID].StartPosition)
 }
 
-func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
+func SendBattlefield(position int, clanID int, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
 	var unknownTerritory string
 	unknownTerritory = "▪️"
 	user, _ := GetUserFromDB(callbackQuery.From.ID)
@@ -76,7 +93,7 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 		for j := min; j <= max; j++ {
 			var btn telegram.InlineKeyboardButton
 			if j == position {
-				btn = telegram.NewInlineKeyboardButtonData(emoji, "PRESS_"+strconv.Itoa(j))
+				btn = telegram.NewInlineKeyboardButtonData(Clans[clanID].PlayerSign, "PRESS_"+strconv.Itoa(j))
 			} else if IsAvailable(j, position) {
 				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_"+strconv.Itoa(j))
 			} else {
@@ -84,9 +101,9 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 			}
 			if IsThere(j, user.Track) {
 				if btn.Text == unknownTerritory && len(user.Track) > 1 {
-					btn.Text = clanEmoji
+					btn.Text = Clans[clanID].ClanSign
 				} else {
-					btn.Text += clanEmoji
+					btn.Text += Clans[clanID].ClanSign
 				}
 			}
 			row = append(row, btn)
@@ -139,4 +156,64 @@ func IsThere(element int, arr [25]int) bool {
 		}
 	}
 	return res
+}
+
+func IsFull(callbackQuery *telegram.CallbackQuery) {
+	user, _ := GetUserFromDB(callbackQuery.From.ID)
+	res := true
+	for _, point := range user.Track {
+		if point == 0 {
+			res = false
+			break
+		}
+	}
+
+	if res {
+		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
+		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
+		ClearUserTrack(callbackQuery)
+		SetUserCurrentBattle(user.ID, 0)
+		SendStartBattleMessage(callbackQuery)
+	}
+}
+
+func SetNextBattle(id int64) error {
+	// TO DO: find out how to check existanse of the DB key without getting all record.
+	battle, err := GetBattleFromDB(id)
+	if battle == nil {
+		RegisterBattle(id)
+	} else if err == nil {
+		resetExistingBattle(battle)
+	} else {
+		log.Println("Could not set next battle", err)
+		return err
+	}
+	return nil
+}
+
+func SetUserCurrentBattle(userID int64, battleID int64) error {
+	user, err := GetUserFromDB(userID)
+	if err != nil {
+		log.Println("Could not get user", err)
+		return err
+	}
+	user.CurrentBattle = battleID
+
+	err = SaveUserToDB(user)
+	if err != nil {
+		log.Println("Could not save user's current battle to DB", err)
+		return err
+	} else {
+		log.Printf("User's current battle successfully saved to DB, ID: %d\n", user.CurrentBattle)
+	}
+	return nil
+}
+
+func resetExistingBattle(battle *database.Battle) {
+	for i := range battle.Sector {
+		// Reset all of player domain marks in i-th sector.
+		for j := range battle.Sector[i].OwnedBy {
+			battle.Sector[i].OwnedBy[j] = 0
+		}
+	}
 }
