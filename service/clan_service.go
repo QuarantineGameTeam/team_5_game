@@ -10,9 +10,9 @@ import (
 
 // Clans map contains information about all clans (database model)
 var Clans = map[int]database.Clan{
-	1: database.Clan{"Blue Jays", "💙", "🔹", 20},
-	2: database.Clan{"Golden Orioles", "🧡", "🔸", 3},
-	3: database.Clan{"Cardinals", "❤️", "🔻", 21},
+	1: {"Blue Jays", "💙", "🔹", 20},
+	2: {"Golden Orioles", "🧡", "🔸", 3},
+	3: {"Cardinals", "❤️", "🔻", 21},
 }
 
 // StartClanSelection sends the clan menu to the user
