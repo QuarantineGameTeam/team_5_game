@@ -11,7 +11,10 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const userPrefix = "USER_"
+const (
+	userPrefix   = "USER_"
+	battlePrefix = "BATTLE_"
+)
 
 var (
 	context     = redisClient.Context()
@@ -104,4 +107,47 @@ func ClearUserTrack(callbackQuery *telegram.CallbackQuery) {
 	if err != nil {
 		log.Println("Could not save cleared track", err)
 	}
+}
+
+func GetBattleFromDB(id int64) (*database.Battle, error) {
+	log.Println("Get battle from DB, battle ID", id)
+
+	result, err := redisClient.Get(context, battlePrefix+strconv.FormatInt(id, 10)).Result()
+	if err == redis.Nil {
+		log.Println("Battle not found", err)
+		return nil, err
+	} else if err != nil {
+		log.Println("Could not read battle from DB", err)
+		return nil, err
+	} else {
+		battle := &database.Battle{}
+
+		err := json.Unmarshal([]byte(result), battle)
+		if err != nil {
+			log.Println("Could not unmarshal battle", err)
+			return nil, err
+		}
+
+		log.Println("Battle successfully received from DB, ID", battle.ID)
+		return battle, nil
+	}
+}
+
+func SaveBattleToDB(battle *database.Battle) error {
+	log.Println("Save battle to the DB, ID", battle.ID)
+
+	out, err := json.Marshal(battle)
+	if err != nil {
+		log.Println("Could not marshal battle", err)
+		return err
+	}
+
+	err = redisClient.Set(context, battlePrefix+strconv.FormatInt(battle.ID, 10), string(out), 0).Err()
+	if err != nil {
+		log.Println("Could not save battle", err)
+		return err
+	}
+
+	log.Println("Battle successfully saved to DB, ID", battle.ID)
+	return nil
 }
