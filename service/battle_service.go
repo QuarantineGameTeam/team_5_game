@@ -140,3 +140,21 @@ func IsThere(element int, arr [25]int) bool {
 	}
 	return res
 }
+
+func IsFull(callbackQuery *telegram.CallbackQuery) {
+	user, _ := GetUserFromDB(callbackQuery.From.ID)
+	res := true
+	for _, point := range user.Track {
+		if point == 0 {
+			res = false
+			break
+		}
+	}
+
+	if res {
+		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
+		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
+		ClearUserTrack(callbackQuery)
+		SendStartBattleMessage(callbackQuery)
+	}
+}
