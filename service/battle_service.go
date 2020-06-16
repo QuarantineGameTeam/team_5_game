@@ -4,6 +4,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"team_5_game/model/database"
 	"team_5_game/model/telegram"
 )
 
@@ -49,6 +50,12 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	user, err := GetUserFromDB(callbackQuery.From.ID)
 	if err != nil {
 		log.Println("Could not get user", err)
+		return
+	}
+
+	err = SetNextBattle(user.ID)
+	if err != nil {
+		log.Println("Could not set next battlefield", err)
 		return
 	}
 
@@ -156,5 +163,28 @@ func IsFull(callbackQuery *telegram.CallbackQuery) {
 		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
 		ClearUserTrack(callbackQuery)
 		SendStartBattleMessage(callbackQuery)
+	}
+}
+
+func SetNextBattle(id int64) error {
+	// TO DO: find out how to check existanse of the DB key without getting all record.
+	battle, err := GetBattleFromDB(id)
+	if battle == nil {
+		RegisterBattle(id)
+	} else if err == nil {
+		resetBattle(battle)
+	} else {
+		log.Println("Could not set next battle", err)
+		return err
+	}
+	return nil
+}
+
+func resetBattle(battle *database.Battle) {
+	for i := range battle.Sector {
+		// Reset all of player domain marks in i-th sector.
+		for j := range battle.Sector[i].Domain {
+			battle.Sector[i].Domain[j] = 0
+		}
 	}
 }
