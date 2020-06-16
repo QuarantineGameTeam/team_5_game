@@ -39,7 +39,7 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 	AppendUserTrack(callbackQuery, position)
 
 	// Get the next field markup.
-	replyMarkup := SendBattlefield(position, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery)
+	replyMarkup := SendBattlefield(position, user.ClanID, callbackQuery)
 	// Editing previous markup
 	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, &replyMarkup)
 	IsFull(callbackQuery)
@@ -61,13 +61,13 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
 
-	replyMarkup := SendBattlefield(Clans[user.ClanID].StartPosition, Clans[user.ClanID].PlayerSign, Clans[user.ClanID].ClanSign, callbackQuery) // getting field markup
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup)                                            // creating message with new markup
+	replyMarkup := SendBattlefield(Clans[user.ClanID].StartPosition, user.ClanID, callbackQuery)     // getting field markup
+	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture:", &replyMarkup) // creating message with new markup
 
 	AppendUserTrack(callbackQuery, Clans[user.ClanID].StartPosition)
 }
 
-func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
+func SendBattlefield(position int, clanID int, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
 	var unknownTerritory string
 	unknownTerritory = "▪️"
 	user, _ := GetUserFromDB(callbackQuery.From.ID)
@@ -83,7 +83,7 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 		for j := min; j <= max; j++ {
 			var btn telegram.InlineKeyboardButton
 			if j == position {
-				btn = telegram.NewInlineKeyboardButtonData(emoji, "PRESS_"+strconv.Itoa(j))
+				btn = telegram.NewInlineKeyboardButtonData(Clans[clanID].PlayerSign, "PRESS_"+strconv.Itoa(j))
 			} else if IsAvailable(j, position) {
 				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_"+strconv.Itoa(j))
 			} else {
@@ -91,9 +91,9 @@ func SendBattlefield(position int, emoji string, clanEmoji string, callbackQuery
 			}
 			if IsThere(j, user.Track) {
 				if btn.Text == unknownTerritory && len(user.Track) > 1 {
-					btn.Text = clanEmoji
+					btn.Text = Clans[clanID].ClanSign
 				} else {
-					btn.Text += clanEmoji
+					btn.Text += Clans[clanID].ClanSign
 				}
 			}
 			row = append(row, btn)
