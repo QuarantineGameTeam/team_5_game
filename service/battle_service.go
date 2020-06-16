@@ -172,7 +172,7 @@ func SetNextBattle(id int64) error {
 	if battle == nil {
 		RegisterBattle(id)
 	} else if err == nil {
-		resetBattle(battle)
+		resetExistingBattle(battle)
 	} else {
 		log.Println("Could not set next battle", err)
 		return err
@@ -180,7 +180,7 @@ func SetNextBattle(id int64) error {
 	return nil
 }
 
-func resetBattle(battle *database.Battle) {
+func resetExistingBattle(battle *database.Battle) {
 	for i := range battle.Sector {
 		// Reset all of player domain marks in i-th sector.
 		for j := range battle.Sector[i].Domain {
