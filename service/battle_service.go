@@ -80,7 +80,8 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 func SendBattlefield(position int, clanID int, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
 	var unknownTerritory string
 	unknownTerritory = "▪️"
-	user, _ := GetUserFromDB(callbackQuery.From.ID)
+	//user, _ := GetUserFromDB(callbackQuery.From.ID)
+	battle, _ := GetBattleFromDB(callbackQuery.From.ID)
 
 	replyMarkup := telegram.InlineKeyboardMarkup{}
 
@@ -99,8 +100,8 @@ func SendBattlefield(position int, clanID int, callbackQuery *telegram.CallbackQ
 			} else {
 				btn = telegram.NewInlineKeyboardButtonData(unknownTerritory, "PRESS_UNAVAILABLE_"+strconv.Itoa(position))
 			}
-			if IsThere(j, user.Track) {
-				if btn.Text == unknownTerritory && len(user.Track) > 1 {
+			if battle.Sector[j-1].IsCaptured {
+				if btn.Text == unknownTerritory && len(battle.Sector) > 1 {
 					btn.Text = Clans[clanID].ClanSign
 				} else {
 					btn.Text += Clans[clanID].ClanSign
@@ -147,31 +148,25 @@ func AvailableTerritory(position int) []int {
 	return availableTerritory
 }
 
-func IsThere(element int, arr [25]int) bool {
-	res := false
-	for _, elem := range arr {
-		if elem == element {
-			res = true
-			break
-		}
-	}
-	return res
-}
-
 func IsFull(callbackQuery *telegram.CallbackQuery) {
 	user, _ := GetUserFromDB(callbackQuery.From.ID)
+	battle, _ := GetBattleFromDB(callbackQuery.From.ID)
 	res := true
-	for _, point := range user.Track {
-		if point == 0 {
-			res = false
-			break
+	for _, point := range battle.Sector {
+		for _, capture := range point.OwnedBy {
+			if capture != 0 {
+				point.IsCaptured = true
+			}
+			if !point.IsCaptured {
+				res = false
+				break
+			}
 		}
 	}
 
 	if res {
 		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
 		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
-		ClearUserTrack(callbackQuery)
 		SetUserCurrentBattle(user.ID, 0)
 		SendStartBattleMessage(callbackQuery)
 	}
@@ -215,5 +210,10 @@ func resetExistingBattle(battle *database.Battle) {
 		for j := range battle.Sector[i].OwnedBy {
 			battle.Sector[i].OwnedBy[j] = 0
 		}
+		battle.Sector[i].IsCaptured = false
+	}
+	err := SaveBattleToDB(battle)
+	if err != nil {
+		log.Println("Could not reset existing battle", err)
 	}
 }

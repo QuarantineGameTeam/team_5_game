@@ -7,7 +7,6 @@ type User struct {
 	BattleCounter int     `json:"battle_counter"`
 	WinCounter    int     `json:"win_counter"`
 	CurrentBattle int64   `json:"current_battle"`
-	Track         [25]int `json:"track"`
 	//	Clan          *Clan  `json:"clan"`
 }
 
@@ -22,7 +21,8 @@ type Clan struct {
 type Battle struct {
 	ID     int64 `json:"id"`
 	Sector [25]struct {
-		ID      int      `json:"id"`
-		OwnedBy [2]int64 `json:"owners"`
+		ID         int      `json:"id"`
+		OwnedBy    [2]int64 `json:"owners"`
+		IsCaptured bool     `json:"captured"`
 	}
 }

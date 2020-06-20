@@ -71,41 +71,22 @@ func SaveUserToDB(user *database.User) error {
 func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
 	log.Println("Start track saving")
 
-	user, err := GetUserFromDB(callbackQuery.From.ID)
+	//user, err := GetUserFromDB(callbackQuery.From.ID)
+	battle, err := GetBattleFromDB(callbackQuery.From.ID)
 	if err != nil {
 		log.Println("Could not get user", err)
 	}
-	user.Track[position-1] = position
+	battle.Sector[position-1].OwnedBy[0] = callbackQuery.From.ID
+	battle.Sector[position-1].IsCaptured = true
 
-	out, err := json.Marshal(user)
+	out, err := json.Marshal(battle)
 	if err != nil {
-		log.Println("Could not marshal user", err)
+		log.Println("Could not marshal battle", err)
 	}
 
-	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
+	err = redisClient.Set(context, battlePrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
 	if err != nil {
 		log.Println("Could not save track", err)
-	}
-}
-
-func ClearUserTrack(callbackQuery *telegram.CallbackQuery) {
-	log.Println("Start track clearing")
-
-	user, err := GetUserFromDB(callbackQuery.From.ID)
-	if err != nil {
-		log.Println("Could not get user", err)
-	}
-	var tmp [25]int
-	user.Track = tmp
-
-	out, err := json.Marshal(user)
-	if err != nil {
-		log.Println("Could not marshal user", err)
-	}
-
-	err = redisClient.Set(context, userPrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
-	if err != nil {
-		log.Println("Could not save cleared track", err)
 	}
 }
 
