@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"team_5_game/config"
 	"team_5_game/model/database"
-	"team_5_game/model/telegram"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -66,28 +65,6 @@ func SaveUserToDB(user *database.User) error {
 
 	log.Println("User successfully saved to DB, ID", user.ID)
 	return nil
-}
-
-func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
-	log.Println("Start track saving")
-
-	//user, err := GetUserFromDB(callbackQuery.From.ID)
-	battle, err := GetBattleFromDB(callbackQuery.From.ID)
-	if err != nil {
-		log.Println("Could not get user", err)
-	}
-	battle.Sector[position-1].OwnedBy[0] = callbackQuery.From.ID
-	battle.Sector[position-1].IsCaptured = true
-
-	out, err := json.Marshal(battle)
-	if err != nil {
-		log.Println("Could not marshal battle", err)
-	}
-
-	err = redisClient.Set(context, battlePrefix+strconv.FormatInt(callbackQuery.From.ID, 10), string(out), 0).Err()
-	if err != nil {
-		log.Println("Could not save track", err)
-	}
 }
 
 func GetBattleFromDB(id int64) (*database.Battle, error) {

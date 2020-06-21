@@ -77,6 +77,26 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	AppendUserTrack(callbackQuery, Clans[user.ClanID].StartPosition)
 }
 
+func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
+	log.Println("Start track saving")
+
+	user, err := GetUserFromDB(callbackQuery.From.ID)
+	if err != nil {
+		return
+	}
+	battle, err := GetBattleFromDB(callbackQuery.From.ID)
+	if err != nil {
+		return
+	}
+
+	battle.Sector[position-1].OwnedBy[0] = callbackQuery.From.ID
+	battle.Sector[position-1].IsCaptured = true
+	user.CurrentPos = position
+
+	SaveUserToDB(user)
+	SaveBattleToDB(battle)
+}
+
 func SendBattlefield(position int, clanID int, callbackQuery *telegram.CallbackQuery) telegram.InlineKeyboardMarkup {
 	var unknownTerritory string
 	unknownTerritory = "▪️"

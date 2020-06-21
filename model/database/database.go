@@ -1,12 +1,13 @@
 package database
 
 type User struct {
-	ID            int64   `json:"id"`
-	FirstName     string  `json:"first_name"`
-	ClanID        int     `json:"clan"`
-	BattleCounter int     `json:"battle_counter"`
-	WinCounter    int     `json:"win_counter"`
-	CurrentBattle int64   `json:"current_battle"`
+	ID            int64  `json:"id"`
+	FirstName     string `json:"first_name"`
+	ClanID        int    `json:"clan"`
+	BattleCounter int    `json:"battle_counter"`
+	WinCounter    int    `json:"win_counter"`
+	CurrentBattle int64  `json:"current_battle"`
+	CurrentPos    int    `json:"current_battle_position"`
 	//	Clan          *Clan  `json:"clan"`
 }
 
