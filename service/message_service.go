@@ -68,7 +68,7 @@ func convertToString(update *telegram.Update) string {
 
 func sendHintIfUnavailable(callbackQuery *telegram.CallbackQuery, emoji string) {
 	if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
-		SendAnswerCallbackQuery(callbackQuery.ID, "☹️You can capture neighboring cells only:\n" + "↖️🔼↗️\n◀️" + emoji + "▶️\n↙️🔽↘️", true)
+		SendAnswerCallbackQuery(callbackQuery.ID, "☹️You can capture neighboring cells only:\n"+"↖️🔼↗️\n◀️"+emoji+"▶️\n↙️🔽↘️", true)
 	}
 }
 
