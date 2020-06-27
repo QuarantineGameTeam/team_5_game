@@ -35,6 +35,8 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 		return
 	}
 
+	ZombieWalking(callbackQuery) //zombie takes a step
+
 	// Get number of next sector from callbackQuery.Data
 	re := regexp.MustCompile("[0-9]+")
 	nextStep, err := strconv.Atoi(re.FindAllString(callbackQuery.Data, -1)[0])
@@ -82,6 +84,7 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 		if err != nil {
 			return
 		}
+		LaunchZombieUser(callbackQuery) //adding bot-player to game
 	} else {
 		log.Println("Could not start new battle: user is in battle now")
 		return
