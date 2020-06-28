@@ -28,7 +28,7 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 		return
 	}
 
-	ZomnbieWalking(callbackQuery) //zombie takes a step
+	ZombieWalking(callbackQuery) //zombie takes a step
 
 	// Getting number from callbackQuery.Data
 	re := regexp.MustCompile("[0-9]+")
