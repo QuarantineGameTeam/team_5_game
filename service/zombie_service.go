@@ -79,8 +79,10 @@ func ZombiePositionCapture(zombie *database.User) {
 		return
 	}
 
-	battle.Sector[zombie.CurrentPos-1].OwnedBy[1] = zombie.ID
-	battle.Sector[zombie.CurrentPos-1].IsCaptured = true
+	if !battle.Sector[zombie.CurrentPos-1].IsCaptured {
+		battle.Sector[zombie.CurrentPos-1].OwnedBy[0] = zombie.ID
+		battle.Sector[zombie.CurrentPos-1].IsCaptured = true
+	}
 
 	SaveBattleToDB(battle)
 }

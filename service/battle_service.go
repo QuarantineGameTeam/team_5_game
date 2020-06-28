@@ -92,8 +92,10 @@ func AppendUserTrack(callbackQuery *telegram.CallbackQuery, position int) {
 		return
 	}
 
-	battle.Sector[position-1].OwnedBy[0] = callbackQuery.From.ID
-	battle.Sector[position-1].IsCaptured = true
+	if !battle.Sector[position-1].IsCaptured {
+		battle.Sector[position-1].OwnedBy[0] = callbackQuery.From.ID
+		battle.Sector[position-1].IsCaptured = true
+	}
 	user.CurrentPos = position
 
 	SaveUserToDB(user)
@@ -125,9 +127,9 @@ func SendBattlefield(position int, clanID int, callbackQuery *telegram.CallbackQ
 			}
 			if battle.Sector[j-1].IsCaptured {
 				if btn.Text == unknownTerritory && len(battle.Sector) > 1 {
-					btn.Text = Clans[clanID].ClanSign
+					btn.Text = Clans[GetClanIDFromCapturedCell(battle, j-1)].ClanSign
 				} else {
-					btn.Text += Clans[clanID].ClanSign
+					btn.Text += Clans[GetClanIDFromCapturedCell(battle, j-1)].ClanSign
 				}
 			}
 			row = append(row, btn)
@@ -239,4 +241,10 @@ func resetExistingBattle(battle *database.Battle) {
 	if err != nil {
 		log.Println("Could not reset existing battle", err)
 	}
+}
+
+func GetClanIDFromCapturedCell(battle *database.Battle, cell int) int {
+	idUserFromCapturedCell := battle.Sector[cell].OwnedBy[0]
+	user, _ := GetUserFromDB(idUserFromCapturedCell)
+	return user.ClanID
 }
