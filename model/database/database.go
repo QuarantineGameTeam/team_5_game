@@ -21,9 +21,9 @@ type Clan struct {
 
 type Battle struct {
 	ID     int64 `json:"id"`
-	Sector [25]struct {
-		ID         int      `json:"id"`
-		OwnedBy    [2]int64 `json:"owners"`
-		IsCaptured bool     `json:"captured"`
+	Sector [5][5]struct {
+		ID         int    `json:"id"`
+		OwnedBy    [2]int `json:"owners"`
+		IsCaptured bool   `json:"captured"`
 	}
 }

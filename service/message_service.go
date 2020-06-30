@@ -21,7 +21,11 @@ func ProcessWebhookMessage(update *telegram.Update) {
 		log.Println("Received command:", message.Text)
 		switch message.Text {
 		case "/start":
-			RegisterUser(message)
+			err := RegisterUser(message)
+			if err == nil {
+				log.Println("Start clan selection for user ID", message.From.ID)
+				SendClanSelectionMenu(message)
+			}
 		case "/help":
 			sendHelp(message)
 		case "/restart":
@@ -38,6 +42,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 		switch {
 		case strings.HasPrefix(callbackQuery.Data, "CLAN_SELECT"):
 			ProcessClanSelection(callbackQuery)
+			SendStartBattleMessage(callbackQuery)
 		case strings.HasPrefix(callbackQuery.Data, "START_BATTLE"):
 			ProcessBattleStarting(callbackQuery)
 		case strings.HasPrefix(callbackQuery.Data, "PRESS"):
@@ -78,9 +83,11 @@ func convertToString(update *telegram.Update) string {
 }
 
 func sendHintIfUnavailable(callbackQuery *telegram.CallbackQuery, emoji string) {
-	if strings.HasPrefix(callbackQuery.Data, "PRESS_UNAVAILABLE") {
-		SendAnswerCallbackQuery(callbackQuery.ID, "☹️You can capture neighboring cells only:\n"+"↖️🔼↗️\n◀️"+emoji+"▶️\n↙️🔽↘️", true)
-	}
+	SendAnswerCallbackQuery(
+		callbackQuery.ID,
+		"☹️You can capture neighboring cells only:\n"+"↖️🔼↗️\n◀️"+emoji+"▶️\n↙️🔽↘️",
+		true,
+	)
 }
 
 func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) error {
@@ -103,7 +110,6 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 	if err != nil {
 		return err
 	}
-
 	if res.StatusCode != http.StatusOK {
 		return errors.New("unexpected status" + res.Status)
 	}

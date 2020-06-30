@@ -15,10 +15,9 @@ var Clans = map[int]database.Clan{
 	3: {"Cardinals", "❤️", "🔻", 21},
 }
 
-// StartClanSelection sends the clan menu to the user
-func StartClanSelection(message *telegram.Message) {
-	log.Println("Start clan selection for user ID", message.From.ID)
-
+// SendClanSelectionMenu sends the clan menu to the user
+func SendClanSelectionMenu(message *telegram.Message) {
+	log.Println("Send clan selection menu for user ID", message.From.ID)
 	replyMarkup := telegram.InlineKeyboardMarkup{}
 	for i, lim := 1, len(Clans); i <= lim; i++ {
 		buttonName := Clans[i].ClanSign + " " + Clans[i].Name
@@ -39,10 +38,7 @@ func ProcessClanSelection(callbackQuery *telegram.CallbackQuery) {
 	if err != nil {
 		log.Println("Could not get user", err)
 	}
-
 	SendMessage(callbackQuery.Message.Chat.ID, "Welcome to "+Clans[user.ClanID].Name+" clan)", nil)
-
-	SendStartBattleMessage(callbackQuery)
 }
 
 func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
@@ -54,7 +50,7 @@ func SaveUserClan(callbackQuery *telegram.CallbackQuery) {
 		return
 	}
 
-	clanID := strings.Trim(string(callbackQuery.Data), "SELECT_CLAN_")
+	clanID := strings.Trim(string(callbackQuery.Data), "CLAN_SELECT_")
 	user.ClanID, err = strconv.Atoi(clanID)
 	if err != nil {
 		log.Println("Could not get user's clan ID", err)
