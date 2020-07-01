@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -16,11 +17,21 @@ func ProcessWebhookMessage(update *telegram.Update) {
 	message := update.Message
 	callbackQuery := update.CallbackQuery
 
-	if message != nil {
-		if message.Text == "/start" && isCommand(message) {
+	if message != nil && isCommand(message) {
+		log.Println("Received command:", message.Text)
+		switch message.Text {
+		case "/start":
 			RegisterUser(message)
-			return
+		case "/help":
+			sendHelp(message)
+		case "/restart":
+			RestartGame(message)
+		case "/stat":
+			sendStatistic(message)
+		default:
+			log.Println("Received undefined command:", message.Text)
 		}
+		return
 	}
 
 	if callbackQuery != nil {
@@ -92,9 +103,17 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 	if err != nil {
 		return err
 	}
+
 	if res.StatusCode != http.StatusOK {
 		return errors.New("unexpected status" + res.Status)
 	}
+
+	resBody, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	if err != nil {
+		log.Println("Couldn't read response body:", err)
+	}
+	log.Printf("%s\n", resBody)
 
 	log.Println("Message sent successfully")
 	return nil
@@ -163,4 +182,23 @@ func isCommand(message *telegram.Message) bool {
 
 	entity := (*message.Entities)[0]
 	return entity.Offset == 0 && entity.Type == "bot_command"
+}
+
+func sendHelp(message *telegram.Message) {
+	log.Println("Send response message to `/help`")
+	user, err := GetUserFromDB(message.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+		return
+	}
+	SendMessage(
+		message.Chat.ID,
+		"...\nЗначення символів:\n▪️ - незахоплена територія\n"+Clans[user.ClanID].PlayerSign+" - ваша позиція (клан "+Clans[user.ClanID].Name+")\n🔹 - територія, захоплена кланом Blue Jays\n🔻 - територія, захоплена кланом Cardinals\n🔸 - територія, захоплена кланом Golden Orioles\nДоступний список команд:\n/restart - розпочати новий бій\n/start - розпочати гру\n/stat - статистика гри",
+		nil)
+	log.Println("Response message to `/help` has been successfully sent")
+}
+
+func sendStatistic(message *telegram.Message) {
+	SendMessage(message.Chat.ID, "Here will be game statistic", nil)
+	log.Println("Response message to `/stat` has been successfully sent")
 }
