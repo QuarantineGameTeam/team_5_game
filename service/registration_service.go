@@ -6,6 +6,7 @@ import (
 	"team_5_game/model/telegram"
 )
 
+// RegisterUser creates the profile for the user with unique Telegram user ID
 func RegisterUser(message *telegram.Message) {
 	log.Println("Start user registration")
 
@@ -47,6 +48,7 @@ func RegisterUser(message *telegram.Message) {
 	}
 }
 
+// RegisterBattle creates the battle profile with the given id
 func RegisterBattle(id int64) {
 	log.Println("Start battle registration")
 
@@ -68,4 +70,28 @@ func RegisterBattle(id int64) {
 			log.Println("Battle successfully registered")
 		}
 	}
+}
+
+// RestartGame cancel the user's current battle and clan
+func RestartGame(message *telegram.Message) {
+	log.Println("Restarting game")
+	
+	user, err := GetUserFromDB(message.From.ID)
+	if err != nil {
+		log.Println("Could not get user", err)
+		return
+	}
+
+	// battle, err := GetBattleFromDB(message.From.ID)
+	// if err != nil {
+	// 	log.Println("Could not get battle", err)
+	// 	return
+	// }
+
+	EditMessageReplyMarkup(message.Chat.ID, message.MessageID, nil)
+	SendMessage(message.Chat.ID, "Previous battle is cancelled", nil)
+	SetUserCurrentBattle(user.ID, 0)
+	// resetExistingBattle(battle)
+	StartClanSelection(message)
+
 }
