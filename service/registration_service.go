@@ -1,22 +1,24 @@
 package service
 
 import (
+	"errors"
 	"log"
 	"team_5_game/model/database"
 	"team_5_game/model/telegram"
 )
 
 // RegisterUser creates the profile for the user with unique Telegram user ID
-func RegisterUser(message *telegram.Message) {
+func RegisterUser(message *telegram.Message) error {
 	log.Println("Start user registration")
 
-	user, _ := GetUserFromDB(message.From.ID)
+	user, err := GetUserFromDB(message.From.ID)
 	if user != nil {
 		SendMessage(
 			message.Chat.ID,
 			"Hello "+message.From.FirstName+" you're already registered!!!",
 			nil)
-		log.Println("User is already registered")
+		err = errors.New("User is already registered")
+		log.Println(err)
 	} else {
 		user := database.User{
 			ID:            message.From.ID,
@@ -28,15 +30,13 @@ func RegisterUser(message *telegram.Message) {
 			CurrentPos:    0,
 			// Clan:          &database.Clan{ID: 0, Name: "NO_CLAN"},
 		}
-		err := SaveUserToDB(&user)
+		err = SaveUserToDB(&user)
 		if err == nil {
 			SendMessage(
 				message.Chat.ID,
 				"Hello "+message.From.FirstName+" thank you for registration!!!",
 				nil)
 			log.Println("User successfully registered")
-
-			StartClanSelection(message)
 		} else {
 			SendMessage(
 				message.Chat.ID,
@@ -44,8 +44,8 @@ func RegisterUser(message *telegram.Message) {
 				nil)
 			log.Println("User not registered")
 		}
-
 	}
+	return err
 }
 
 // RegisterBattle creates the battle profile with the given id
@@ -60,7 +60,9 @@ func RegisterBattle(id int64) {
 			ID: id,
 		}
 		for i := range battle.Sector {
-			battle.Sector[i].ID = i + 1
+			for j := range battle.Sector[i] {
+				battle.Sector[i][j].ID = i*FieldWidth + j + 1
+			}
 		}
 
 		err := SaveBattleToDB(&battle)
@@ -75,7 +77,7 @@ func RegisterBattle(id int64) {
 // RestartGame cancel the user's current battle and clan
 func RestartGame(message *telegram.Message) {
 	log.Println("Restarting game")
-	
+
 	user, err := GetUserFromDB(message.From.ID)
 	if err != nil {
 		log.Println("Could not get user", err)
@@ -90,8 +92,7 @@ func RestartGame(message *telegram.Message) {
 
 	EditMessageReplyMarkup(message.Chat.ID, message.MessageID, nil)
 	SendMessage(message.Chat.ID, "Previous battle is cancelled", nil)
-	SetUserCurrentBattle(user.ID, 0)
+	SetUserCurrentBattle(user, 0)
 	// resetExistingBattle(battle)
-	StartClanSelection(message)
-
+	SendClanSelectionMenu(message)
 }
