@@ -23,6 +23,7 @@ func SendStartBattleMessage(callbackQuery *telegram.CallbackQuery) {
 // ProcessNextMove - player's intention to go to the next sector.
 func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 	log.Println("Start processing next move for", callbackQuery.Data)
+	BotMakesNextStep(callbackQuery)
 
 	user, err := GetUserFromDB(callbackQuery.From.ID)
 	if err != nil {
@@ -34,8 +35,6 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 		log.Println("Could not get battle", err)
 		return
 	}
-
-	ZombieWalking(callbackQuery) //zombie takes a step
 
 	// Get number of next sector from callbackQuery.Data
 	re := regexp.MustCompile("[0-9]+")
@@ -84,7 +83,6 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 		if err != nil {
 			return
 		}
-		LaunchZombieUser(callbackQuery) //adding bot-player to game
 	} else {
 		log.Println("Could not start new battle: user is in battle now")
 		return
@@ -94,10 +92,13 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 		log.Println("Could not get battle", err)
 		return
 	}
+
+	zombie, _ := CreateBot(callbackQuery)
+	AddBotToBattle(battle, zombie)
 	// Initialize start position of the user.
 	SaveUserPosition(user, battle, Clans[user.ClanID].StartPosition)
-	// Send user the new battlefield.
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
+	// Send user the new battlefield.
 	replyMarkup := SendBattlefield(user, battle, callbackQuery)
 	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture: ", &replyMarkup)
 	log.Println("New battle is successfully initialized")
