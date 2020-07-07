@@ -22,8 +22,10 @@ func SaveUserPosition(user *database.User, battle *database.Battle, position int
 	log.Println("Trying update the user's current position to", position)
 	xy := ToCoordinates(position)
 
-	battle.Sector[xy.Row][xy.Col].OwnedBy[0] = user.ClanID
-	battle.Sector[xy.Row][xy.Col].IsCaptured = true
+	if !battle.Sector[xy.Row][xy.Col].IsCaptured {
+		battle.Sector[xy.Row][xy.Col].OwnedBy[0] = user.ClanID
+		battle.Sector[xy.Row][xy.Col].IsCaptured = true
+	}
 	user.CurrentPos = position
 
 	SaveUserToDB(user)
