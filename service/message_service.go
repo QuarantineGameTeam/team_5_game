@@ -52,7 +52,7 @@ func ProcessWebhookMessage(update *telegram.Update) {
 }
 
 func SendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) {
-	err := sendMessage(chatID, message, replyMarkup)
+	_, err := sendMessage(chatID, message, replyMarkup)
 	if err != nil {
 		log.Println("Error in sending message:", err)
 	}
@@ -90,7 +90,7 @@ func sendHintIfUnavailable(callbackQuery *telegram.CallbackQuery, emoji string) 
 	)
 }
 
-func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) error {
+func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) (*telegram.Update, error) {
 	log.Println("Sending message to the chat:", chatID, " message: ", message)
 	reqBody := &telegram.NewMessage{
 		ChatID:      chatID,
@@ -100,7 +100,7 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	res, err := http.Post(
@@ -108,12 +108,14 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 		"application/json",
 		bytes.NewBuffer(reqBytes))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return errors.New("unexpected status" + res.Status)
+		err = errors.New("unexpected status" + res.Status)
+		return nil, err
 	}
 
+	// return message body
 	resBody, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
@@ -121,8 +123,16 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 	}
 	log.Printf("%s\n", resBody)
 
+	resBodyUnmarshal := &telegram.Update{}
+
+	err = json.Unmarshal(resBody, resBodyUnmarshal)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(resBodyUnmarshal)
 	log.Println("Message sent successfully")
-	return nil
+	return resBodyUnmarshal, err
 }
 
 func editMessageReplyMarkup(chatID int64, messageID int64, replyMarkup *telegram.InlineKeyboardMarkup) error {

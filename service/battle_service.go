@@ -96,7 +96,11 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	// Send user the new battlefield.
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
 	replyMarkup := SendBattlefield(user, battle, callbackQuery)
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture: ", &replyMarkup)
+	resMessage, err := sendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture: ", &replyMarkup)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(resMessage)
 	log.Println("New battle is successfully initialized")
 }
 
