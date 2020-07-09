@@ -51,12 +51,13 @@ func ProcessNextMove(callbackQuery *telegram.CallbackQuery) {
 	SaveUserPosition(user, battle, nextStep)
 	replyMarkup := SendBattlefield(user, battle, callbackQuery)
 	// Editing previous markup
-	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, &replyMarkup)
+	EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, user.CurrentBattlefieldMessageID, &replyMarkup)
 	if IsFull(callbackQuery) {
 		log.Println("Battlefield is full")
-		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, callbackQuery.Message.MessageID, nil)
+		EditMessageReplyMarkup(callbackQuery.Message.Chat.ID, user.CurrentBattlefieldMessageID, nil)
 		SendMessage(callbackQuery.Message.Chat.ID, "Game over!", nil)
 		SetUserCurrentBattle(user, 0)
+		ResetCurrentBattlefieldMessageID(user)
 		SendStartBattleMessage(callbackQuery)
 	}
 }
@@ -96,7 +97,16 @@ func ProcessBattleStarting(callbackQuery *telegram.CallbackQuery) {
 	// Send user the new battlefield.
 	SendMessage(callbackQuery.Message.Chat.ID, "Your emoji: "+Clans[user.ClanID].PlayerSign, nil)
 	replyMarkup := SendBattlefield(user, battle, callbackQuery)
-	SendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture: ", &replyMarkup)
+	resMessage, err := sendMessage(callbackQuery.Message.Chat.ID, "Select the cell you want to capture: ", &replyMarkup)
+	if err != nil {
+		log.Println(err)
+	}
+	// Save battle MessageID to DB
+	user.CurrentBattlefieldMessageID = resMessage.Result.MessageID
+	err = SaveUserToDB(user)
+	if err != nil {
+		log.Println("Cannot save CurrentBattlefieldMessageID to DB", err)
+	}
 	log.Println("New battle is successfully initialized")
 }
 

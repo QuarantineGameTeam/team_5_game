@@ -84,15 +84,17 @@ func RestartGame(message *telegram.Message) {
 		return
 	}
 
-	// battle, err := GetBattleFromDB(message.From.ID)
-	// if err != nil {
-	// 	log.Println("Could not get battle", err)
-	// 	return
-	// }
-
-	EditMessageReplyMarkup(message.Chat.ID, message.MessageID, nil)
+	EditMessageReplyMarkup(message.Chat.ID, user.CurrentBattlefieldMessageID, nil) // Deleting previous battlefield
+	ResetCurrentBattlefieldMessageID(user)
 	SendMessage(message.Chat.ID, "Previous battle is cancelled", nil)
 	SetUserCurrentBattle(user, 0)
-	// resetExistingBattle(battle)
 	SendClanSelectionMenu(message)
+}
+
+func ResetCurrentBattlefieldMessageID(user *database.User) {
+	user.CurrentBattlefieldMessageID = 0
+	err := SaveUserToDB(user)
+	if err != nil {
+		log.Println("Cannot save user to DB with new CurrentBattlefieldMessageID", err)
+	}
 }

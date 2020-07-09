@@ -44,6 +44,11 @@ type MessageEntity struct {
 	Offset int    `json:"offset"`
 }
 
+type ResultMessage struct {
+	StatusOK bool    `json:"ok"`
+	Result   Message `json:"result"`
+}
+
 type NewMessage struct {
 	ChatID      int64                 `json:"chat_id"`
 	Text        string                `json:"text"`
