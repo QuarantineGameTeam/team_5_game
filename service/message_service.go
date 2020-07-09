@@ -90,7 +90,7 @@ func sendHintIfUnavailable(callbackQuery *telegram.CallbackQuery, emoji string) 
 	)
 }
 
-func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) (*telegram.Update, error) {
+func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeyboardMarkup) (*telegram.ResultMessage, error) {
 	log.Println("Sending message to the chat:", chatID, " message: ", message)
 	reqBody := &telegram.NewMessage{
 		ChatID:      chatID,
@@ -115,24 +115,21 @@ func sendMessage(chatID int64, message string, replyMarkup *telegram.InlineKeybo
 		return nil, err
 	}
 
-	// return message body
 	resBody, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		log.Println("Couldn't read response body:", err)
 	}
-	log.Printf("%s\n", resBody)
-
-	resBodyUnmarshal := &telegram.Update{}
-
-	err = json.Unmarshal(resBody, resBodyUnmarshal)
+	resMessageBody := &telegram.ResultMessage{}
+	err = json.Unmarshal([]byte(resBody), resMessageBody)
 	if err != nil {
 		log.Println(err)
 	}
 
-	log.Println(resBodyUnmarshal)
-	log.Println("Message sent successfully")
-	return resBodyUnmarshal, err
+	if resMessageBody.StatusOK {
+		log.Println("Message sent successfully, ID:", resMessageBody.Result.MessageID)
+	}
+	return resMessageBody, err
 }
 
 func editMessageReplyMarkup(chatID int64, messageID int64, replyMarkup *telegram.InlineKeyboardMarkup) error {
